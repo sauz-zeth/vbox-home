@@ -1,0 +1,30 @@
+# Игнорировать всё
+*
+
+# Разрешить папку py и файлы .py и .txt внутри
+!py/
+!py/*.py
+!py/*.txt
+
+# Разрешить папку c и файлы .c и .txt внутри
+!c/
+!c/*.c
+!c/*.txt
+
+# Разрешить папку cpp и файлы .cpp, .c и .txt внутри
+!cpp/
+!cpp/*.cpp
+!cpp/*.c
+!cpp/*.txt
+
+# Разрешить папку bash и файлы .sh внутри
+!bash/
+!bash/*.sh
+
+# Разрешить конкретные файлы
+!.gitignore
+!.bash_aliases1
+!.bash_aliases2
+!.vimrc
+!.bashrc
+
