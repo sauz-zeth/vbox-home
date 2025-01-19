@@ -21,8 +21,8 @@ using std::endl;
 
 template<typename T = float, typename U = size_t>
 class Vec {
-    U dim;
     T* coords; 
+    U dim;
     static constexpr int N_DEFAULT = 2;
 
 public:
@@ -57,11 +57,23 @@ public:
     void one();
     void scale(T k);
     void add(const Vec& v);
+    T dot(const Vec& v);
+    void sub(const Vec& v);
 
 //    friend bool less<>(const Vec& v1, const Vec& v2);
 
     template<typename TT, typename UU>
     friend bool less(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
+
+    template<typename TT, typename UU>
+    friend Vec<TT, UU> add(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
+
+
+    template<typename TT, typename UU>
+    friend Vec<TT, UU> sub(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
+
+    template<typename TT, typename UU>
+    friend TT dot(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
 
 //    friend bool less(const Vec& v1, const Vec& v2) {
 //        for(U i {}; i < v1.dim; i++) {
@@ -94,16 +106,6 @@ public:
         delete[] coords;
     }
 };
-
-template<typename T, typename U>
-bool less(const Vec<T, U>& v1, const Vec<T, U>& v2) {
-    for(U i {}; i < v1.dim && i < v2.dim; i++) {
-        T x1 {v1.coords[i]};
-        T x2 {v2.coords[i]};
-        if(x1 != x2) return x1 < x2;
-    }
-    return v1.dim < v2.dim;
-}
 
 template<typename T, typename U>
 double Vec<T, U>::length() {
@@ -146,6 +148,32 @@ void Vec<T, U>::add(const Vec<T, U>& v) {
 }
 
 template<typename T, typename U>
+T Vec<T, U>::dot(const Vec<T, U>& v) {
+    T sdot {};
+    for(U i {}; i < dim; i++) {
+        sdot += coords[i] * v.coords[i];
+    }
+    return sdot;
+}
+
+template<typename T, typename U>
+void Vec<T, U>::sub(const Vec<T, U>& v) {
+    for(U i {}; i < dim; i++) {
+        coords[i] -= v.coords[i];
+    }
+}
+
+template<typename T, typename U>
+bool less(const Vec<T, U>& v1, const Vec<T, U>& v2) {
+    for(U i {}; i < v1.dim && i < v2.dim; i++) {
+        T x1 {v1.coords[i]};
+        T x2 {v2.coords[i]};
+        if(x1 != x2) return x1 < x2;
+    }
+    return v1.dim < v2.dim;
+}
+
+template<typename T, typename U>
 Vec<T, U> scale(Vec<T, U> v, T k) {
     int a;
     cout << &a << endl;
@@ -153,7 +181,26 @@ Vec<T, U> scale(Vec<T, U> v, T k) {
     return v;   //NRVO
 }
 
+template<typename T, typename U>
+Vec<T, U> add(Vec<T, U> v1, Vec<T, U> v2) {
+    Vec<T, U> v = v1;
 
+    v.add(v2);
+    return v;
+}
+
+template<typename T, typename U>
+Vec<T, U> sub(Vec<T, U> v1, Vec<T, U> v2) {
+    Vec<T, U> v = v1;
+
+    v.sub(v2);
+    return v;
+}
+
+template<typename T, typename U>
+T add(Vec<T, U> v1, Vec<T, U> v2) {
+    return v1.dot(v2);
+}
 
 //template<typename U, typename T>
 //Vec add(const Vec<U, T>& v1, const Vec<U, T>& v2) {
@@ -219,6 +266,11 @@ int main() {
     Vec v5 {2};
     v5.one();
     v5.print("v5");
+
+    float s {v3.dot(v2)};
+    cout << "v3 dot v2: " << s << endl;
+
+
 
     cout << less(v5, v3) << endl;
 
