@@ -57,20 +57,22 @@ public:
     void one();
     void scale(T k);
     void add(const Vec& v);
+
+    template<typename V>
+    void add(const V x);
+
     T dot(const Vec& v);
     void sub(const Vec& v);
+
+    void operator+=(const Vec& v);
+
+    template<typename V>
+    void operator+=(const V x);
 
 //    friend bool less<>(const Vec& v1, const Vec& v2);
 
     template<typename TT, typename UU>
     friend bool less(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
-
-    template<typename TT, typename UU>
-    friend Vec<TT, UU> add(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
-
-
-    template<typename TT, typename UU>
-    friend Vec<TT, UU> sub(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
 
     template<typename TT, typename UU>
     friend TT dot(const Vec<TT, UU>& v1, const Vec<TT, UU>& v2);
@@ -141,27 +143,39 @@ void Vec<T, U>::scale(T k) {
 }
 
 template<typename T, typename U>
-void Vec<T, U>::add(const Vec<T, U>& v) {
+inline void Vec<T, U>::add(const Vec<T, U>& v) {
     for(U i {}; i < dim; i++) {
         coords[i] += v.coords[i];
     }
 }
 
 template<typename T, typename U>
-T Vec<T, U>::dot(const Vec<T, U>& v) {
-    T sdot {};
+template<typename V>
+inline void Vec<T, U>::add(const V x) {
     for(U i {}; i < dim; i++) {
-        sdot += coords[i] * v.coords[i];
+        coords[i] += x;
     }
-    return sdot;
 }
 
 template<typename T, typename U>
-void Vec<T, U>::sub(const Vec<T, U>& v) {
+void Vec<T, U>::operator+=(const Vec<T, U>& v) {
+    add(v);
+}
+
+template<typename T, typename U>
+template<typename V>
+void Vec<T, U>::operator+=(const V x) {
+    add(x);
+}
+
+template<typename T, typename U>
+inline void Vec<T, U>::sub(const Vec<T, U>& v) {
     for(U i {}; i < dim; i++) {
         coords[i] -= v.coords[i];
     }
 }
+
+//  Helpers
 
 template<typename T, typename U>
 bool less(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -182,15 +196,46 @@ Vec<T, U> scale(Vec<T, U> v, T k) {
 }
 
 template<typename T, typename U>
-Vec<T, U> add(Vec<T, U> v1, Vec<T, U> v2) {
+inline Vec<T, U> add(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     Vec<T, U> v = v1;
 
     v.add(v2);
     return v;
 }
 
+template<typename T, typename U, typename V>
+inline Vec<T, U> add(const Vec<T, U>& v, const V x) {
+    Vec<T, U> vv = v;
+
+    vv.add(x);
+    return vv;
+}
+
+template<typename T, typename U, typename V>
+inline Vec<T, U> add(const V x, const Vec<T, U>& v) {
+    Vec<T, U> vv = v;
+
+    vv.add(x);
+    return vv;
+}
+
+template<typename T, typename U, typename V>
+Vec<T, U> operator+(const Vec<T, U>& v, const V x) {
+    return add(v, x);
+}
+
+template<typename T, typename U, typename V>
+Vec<T, U> operator+(const V x, const Vec<T, U>& v) {
+    return add(x, v);
+}
+
 template<typename T, typename U>
-Vec<T, U> sub(Vec<T, U> v1, Vec<T, U> v2) {
+Vec<T, U> operator+(const Vec<T, U>& v1, const Vec<T, U>& v2) {
+    return add(v1, v2);
+}
+
+template<typename T, typename U>
+Vec<T, U> sub(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     Vec<T, U> v = v1;
 
     v.sub(v2);
@@ -198,8 +243,12 @@ Vec<T, U> sub(Vec<T, U> v1, Vec<T, U> v2) {
 }
 
 template<typename T, typename U>
-T add(Vec<T, U> v1, Vec<T, U> v2) {
-    return v1.dot(v2);
+T dot(const Vec<T, U>& v1, const Vec<T, U>& v2) {
+    T sp {};
+    for(U i {}; i < v1.dim; i++) {
+        sp += v1.coords[i] * v2.coords[i];
+    }
+    return sp;
 }
 
 //template<typename U, typename T>
@@ -219,12 +268,12 @@ T add(Vec<T, U> v1, Vec<T, U> v2) {
 // .scale(k) (умножение на число)
 // .add(v) (сложение с вектором +=)
 // scale(v, k)
-// TODO:
-// .dot(v) (скалярное произведение)
 // .sub(v) (разность)
 // add(v1, v2)
 // sub(v1, v2)
 // dot(v1, v2)
+// TODO: реализовать интерфейс вычитания по аналогии с интерфейсом сложения
+// TODO: реализовать интерфейс *, *=, выполняющий scale/dot в зависимости от типа операнда
 
 int main() {
     Vec<float, int> v1{3};
@@ -267,12 +316,33 @@ int main() {
     v5.one();
     v5.print("v5");
 
-    float s {v3.dot(v2)};
-    cout << "v3 dot v2: " << s << endl;
+    Vec v6 = sub(v3, v2);
+    v6.print("v3 sub v2");
 
-
+    cout << "v3 dot v2: " << dot(v3, v2) << endl;
+    
+    v3.print("v3");
+    v3 += v2;
+    v3.print("v3 += v2");
 
     cout << less(v5, v3) << endl;
+
+    v2.print("v2");
+    
+    Vec v7 = v3 + v2;
+    v7.print("v3 + v2");
+
+    Vec v8 = operator+<float>(v3, v2);
+    v8.print("v3 + v2");
+
+    v8 += 5;
+    v8.print("v8 += 5");
+
+    Vec v9 = v8 + 20;
+    v9.print("v8 + 20");
+
+    Vec v10 = 20 + v9;
+    v10.print("20 + v9");
 
     for(int i = 0; i < 3; i++) {
         cout << "block start \n";

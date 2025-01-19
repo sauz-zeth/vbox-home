@@ -17,7 +17,32 @@ class Point():
         s = s[:-2] + '}'
 
         return s
+
+    def __add__(self, v):
+        print('add')
+        p = Point()
+        p.__dict__.update(self.__dict__)
+        p += v
+        return p
+
+    def __radd__(self, v):
+        print('radd')
+        return self + v
         
+    def __iadd__(self, v):
+        if type(self) is type(v):
+            for k in self.__dict__:
+                if hasattr(v, k):
+                    setattr(self, k, getattr(self, k) + getattr(v, k))
+                else:
+                    setattr(self, k, getattr(self, k))
+            for k in vars(self):
+        else:
+                setattr(self, k, getattr(self, k) + v)
+
+        return p
+
+
     @staticmethod
     def instanceCount():
         return Point.index_max
@@ -54,3 +79,16 @@ print(vars(Point))
 print(Point.instanceCount())
 print(q.instanceCount())
 print(q.instanceCount)
+
+print(p)
+print(q)
+r = p + q
+print(r)
+v = r + 50
+print(v)
+v = 50 + r
+print(v)
+v += p
+print(v)
+v += 20
+print(v)
