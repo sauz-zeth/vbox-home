@@ -57,17 +57,26 @@ public:
     void one();
     void scale(T k);
     void add(const Vec& v);
+    void sub(const Vec& v);
 
     template<typename V>
     void add(const V x);
 
+    template<typename V>
+    void sub(const V x);
+
     T dot(const Vec& v);
-    void sub(const Vec& v);
 
     void operator+=(const Vec& v);
 
     template<typename V>
     void operator+=(const V x);
+
+    void operator-=(const Vec& v);
+
+    template<typename V>
+    void operator-=(const V x);
+
 
 //    friend bool less<>(const Vec& v1, const Vec& v2);
 
@@ -142,6 +151,7 @@ void Vec<T, U>::scale(T k) {
     }
 }
 
+// Метод add для сложения координатов двух векторов
 template<typename T, typename U>
 inline void Vec<T, U>::add(const Vec<T, U>& v) {
     for(U i {}; i < dim; i++) {
@@ -149,6 +159,7 @@ inline void Vec<T, U>::add(const Vec<T, U>& v) {
     }
 }
 
+// Метод add для сложения координатов вектора с числом
 template<typename T, typename U>
 template<typename V>
 inline void Vec<T, U>::add(const V x) {
@@ -157,22 +168,47 @@ inline void Vec<T, U>::add(const V x) {
     }
 }
 
+// Метод operator+= который вызывает МЕТОД add() для сложения двух векторов
 template<typename T, typename U>
 void Vec<T, U>::operator+=(const Vec<T, U>& v) {
     add(v);
 }
 
+// Метод operator+= который вызывает МЕТОД add() для сложения вектора с числом
 template<typename T, typename U>
 template<typename V>
 void Vec<T, U>::operator+=(const V x) {
     add(x);
 }
 
+// Метод sub для сложения координатов двух векторов
 template<typename T, typename U>
 inline void Vec<T, U>::sub(const Vec<T, U>& v) {
     for(U i {}; i < dim; i++) {
         coords[i] -= v.coords[i];
     }
+}
+
+// Метод sub для сложения координатов вектора с числом
+template<typename T, typename U>
+template<typename V>
+inline void Vec<T, U>::sub(const V x) {
+    for(U i {}; i < dim; i++) {
+        coords[i] -= x;
+    }
+}
+
+// Метод operator-= который вызывает МЕТОД sub() для вычитания двух векторов
+template<typename T, typename U>
+void Vec<T, U>::operator-=(const Vec<T, U>& v) {
+    sub(v);
+}
+
+// Метод operator-= который вызывает МЕТОД sub() для вычитания вектора с числом
+template<typename T, typename U>
+template<typename V>
+void Vec<T, U>::operator-=(const V x) {
+    sub(x);
 }
 
 //  Helpers
@@ -195,6 +231,7 @@ Vec<T, U> scale(Vec<T, U> v, T k) {
     return v;   //NRVO
 }
 
+// Функция add для сложения двух векторов
 template<typename T, typename U>
 inline Vec<T, U> add(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     Vec<T, U> v = v1;
@@ -203,6 +240,7 @@ inline Vec<T, U> add(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return v;
 }
 
+// Функция add для сложения вектора И числа
 template<typename T, typename U, typename V>
 inline Vec<T, U> add(const Vec<T, U>& v, const V x) {
     Vec<T, U> vv = v;
@@ -211,6 +249,7 @@ inline Vec<T, U> add(const Vec<T, U>& v, const V x) {
     return vv;
 }
 
+// Функция add для сложения числа И вектора
 template<typename T, typename U, typename V>
 inline Vec<T, U> add(const V x, const Vec<T, U>& v) {
     Vec<T, U> vv = v;
@@ -234,12 +273,28 @@ Vec<T, U> operator+(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return add(v1, v2);
 }
 
+// Функция sub для сложения двух векторов
 template<typename T, typename U>
 Vec<T, U> sub(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     Vec<T, U> v = v1;
 
     v.sub(v2);
     return v;
+}
+
+template<typename T, typename U, typename V>
+Vec<T, U> operator-(const Vec<T, U>& v, const V x) {
+    return add(v, -x);
+}
+
+template<typename T, typename U, typename V>
+Vec<T, U> operator-(const V x, const Vec<T, U>& v) {
+    return add(-x, v);
+}
+
+template<typename T, typename U>
+Vec<T, U> operator-(const Vec<T, U>& v1, const Vec<T, U>& v2) {
+    return sub(v1, v2);
 }
 
 template<typename T, typename U>
@@ -343,6 +398,12 @@ int main() {
 
     Vec v10 = 20 + v9;
     v10.print("20 + v9");
+
+    v10 -= 20;
+    v10.print("v9 - 20");
+
+    Vec v11 = v8 - v10;
+    v11.print("V8 - v10");
 
     for(int i = 0; i < 3; i++) {
         cout << "block start \n";
