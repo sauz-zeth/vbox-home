@@ -30,14 +30,15 @@ class Point():
         return self + v
         
     def __iadd__(self, v):
+        '''Add in place'''
         if type(self) is type(v):
             for k in self.__dict__:
                 if hasattr(v, k):
                     setattr(self, k, getattr(self, k) + getattr(v, k))
                 else:
                     setattr(self, k, getattr(self, k))
-            for k in vars(self):
         else:
+            for k in vars(self):
                 setattr(self, k, getattr(self, k) + v)
 
         return p
