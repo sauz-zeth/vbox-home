@@ -23,7 +23,7 @@ template<typename T = float, typename U = size_t>
 class Vec {
     U dim;
     T* coords; 
-    static constexpr U N_DEFAULT = 2;
+    static constexpr U DIM_DEFAULT = 2;
 
 public:
 
@@ -36,7 +36,7 @@ public:
     }
 
     
-    Vec(U ddim = N_DEFAULT) : dim{ddim}, coords{new T[ddim]{}} {
+    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, coords{new T[ddim]{}} {
         cout << "constructed at " << this << endl;
     }
 
@@ -60,6 +60,29 @@ public:
         cout << "move constructed at " << this << " from " << &v << endl;
         v.coords = nullptr;
     }
+
+    Vec& operator=(const Vec& v) {
+        cout << "copy assignment at " << this << " from " << &v << endl;
+
+        Vec vv = v;
+        std::swap(vv, *this);
+
+        return *this;
+    }
+
+// swap(a, b):
+// T x = move(a)
+// a = move(b)
+// b = move(x)
+    Vec& operator=(Vec&& v) {
+        cout << "move assignment at " << this << " from " << &v << endl;
+
+        std::swap(v.coords, coords);
+        dim = v.dim;
+
+        return *this;
+    }
+        
 
     double length();
     void fill(T x);
@@ -96,7 +119,7 @@ public:
     template<typename V>
     void operator*=(const V x);
 
-    T operator[](U i);
+    T& operator[](U i);
 
 //    friend bool less<>(const Vec& v1, const Vec& v2);
 
@@ -164,8 +187,8 @@ void Vec<T, U>::one() {
 }
 
 template<typename T, typename U>
-T Vec<T, U>::operator[](U i) {
-    return coords[i];
+T& Vec<T, U>::operator[](U i) {
+    return at(i);
 }
 
 /******************** Vec<T, U>::neg ********************/
@@ -252,7 +275,7 @@ void Vec<T, U>::operator-=(const V x) {
 /******************** Vec<T, U>::scale ********************/
 
 template<typename T, typename U>
-void Vec<T, U>::scale(T k) {
+inline void Vec<T, U>::scale(T k) {
     for(U i {}; i < dim; i++) {
         coords[i] *= k;
     }
@@ -388,29 +411,7 @@ T operator*(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return dot(v1, v2);
 }
 
-//template<typename U, typename T>
-//Vec add(const Vec<U, T>& v1, const Vec<U, T>& v2) {
-//    Vec<int, float> va{v1.size()};
-//
-//    for(int i = 0; i < v1.size(); i++) {
-//        va.at(i) = v1.at(i) + v2.at(i)
-//    }
-//
-//    return va;
-//}
-
-// .length() 
-// .zero() (заполнение нулями)
-// .one() (заполнение единицами)
-// .scale(k) (умножение на число)
-// .add(v) (сложение с вектором +=)
-// scale(v, k)
-// .sub(v) (разность)
-// add(v1, v2)
-// sub(v1, v2)
-// dot(v1, v2)
-// реализовать интерфейс *, *=, выполняющий scale/dot в зависимости от типа операнда
-// реализовать operator[](U index)
+// TODO: .resize (указываю ему размер, если размер меньше, то массив обрезается, если размер больше, то массив увелчается и заполняется нулями)
 
 int main() {
     Vec<float, int> v1{3};
@@ -508,9 +509,25 @@ int main() {
 
     v16 *= 0.5f;
     v16.print("v16");
-
-    cout << "v16[0]: " << v16[0] << endl;
+    
+    v16[0] = 20;
+    cout << "v16[0] = 20: " << v16[0] << endl;
     cout << "v16[1]: " << v16[1] << endl;
+
+    v15.print("v15");
+    v16 = v15;
+    v16.print("v16 = v15");
+
+    v14.print("v14");
+    v15 = std::move(v14);
+    v15.print("v15 = move(v14)");
+
+    v15 = Vec{3};
+    v15.print("v15");
+
+    v16 = v14 = v15;
+    v16.print("v16");
+    v16.print("v14");
 
     for(int i = 0; i < 3; i++) {
         cout << "block start \n";

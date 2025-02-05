@@ -36,6 +36,9 @@ public:
 //    PrivatePoint(const PrivatePoint& pp) = default; //copy constructor explicitly defaulted
     PrivatePoint(PrivatePoint&& pp);   //move constructor
 //    PrivatePoint(PrivatePoint&& pp) = delete;   //move constructor explicitly deleted
+
+    PrivatePoint& operator=(const PrivatePoint& p); //copy assignment
+
     ~PrivatePoint();
     
     void print() const {
@@ -49,6 +52,13 @@ public:
 
     void printa();
 };
+
+inline PrivatePoint& PrivatePoint::operator=(const PrivatePoint& p) {
+    printf("copy assignment at %p from %p\n", this, &p);
+    x = p.x;
+    y = p.y;
+    z = p.z;
+}
 
 int PrivatePoint::instanceCount() {
     return index_max;
@@ -158,7 +168,7 @@ int main() {
     printf("ppc.index: %d\n", ppc.index);
     PrivatePoint ppd = ppp; //copy construction, indirect i12n
     printf("ppd.index: %d\n", ppd.index);
-//    ppc = PrivatePoint{}; //assignment, prvalue materialization -> xvalue
+    ppc = PrivatePoint{}; //assignment, prvalue materialization -> xvalue
 
     const int i3 {123}; //constant variable
     constexpr int i4 {321}; //constant expression
