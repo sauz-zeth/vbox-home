@@ -92,6 +92,7 @@ public:
     void neg();
     void add(const Vec& v);
     void sub(const Vec& v);
+    void resize(U s);
 
     template<typename V>
     void add(const V x);
@@ -159,6 +160,16 @@ public:
         delete[] coords;
     }
 };
+
+template<typename T, typename U>
+void Vec<T,U>::resize(U s) {
+    Vec<T, U> v{s};
+    for(U i {}; i < s; i++) {
+        v.coords[i] = (i < dim) ? coords[i] : 0;
+    }
+
+    std::swap(v, *this);
+}
 
 template<typename T, typename U>
 double Vec<T, U>::length() {
@@ -528,6 +539,18 @@ int main() {
     v16 = v14 = v15;
     v16.print("v16");
     v16.print("v14");
+
+
+    v16.at(0) = 1;
+    v16.at(1) = 3;
+    v16.at(2) = 5;
+    v16.print("v16");
+
+    v16.resize(4);
+    v16.print("v16");
+
+    v16.resize(2);
+    v16.print("v16");
 
     for(int i = 0; i < 3; i++) {
         cout << "block start \n";
