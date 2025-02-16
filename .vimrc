@@ -63,7 +63,7 @@ set ul=1000             "'undolevels' - размер истории измене
 "set km=startsel,stopsel    "'keymodel' - выделение стрелками
 "set bo=all             "'belloff' - отключение звукового сигнала
 
-"set fdc=1               "'foldcolumn' - столбец индикации складок
+set fdc=1               "'foldcolumn' - столбец индикации складок
 set sm                 "'showmatch' - подсветка парных скобок
 
 "'statusline' - строка состояния
