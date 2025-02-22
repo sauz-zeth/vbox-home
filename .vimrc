@@ -31,6 +31,9 @@ set shellcmdflag=-c
 "    set shellcmdflag=-c
 "endif
 
+set foldmethod=marker
+set foldmarker=//->,//<-
+
 set enc=utf-8           "кодировка
 "set ff=unix            "'fileformat' - символ конца строки при чтении/записи в файл
 set mouse=a             "включение мыши

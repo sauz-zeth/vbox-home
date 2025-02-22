@@ -22,6 +22,7 @@ using std::endl;
 template<typename T = float, typename U = size_t>
 class Vec {
     U dim;
+    U cap;
     T* coords; 
     static constexpr U DIM_DEFAULT = 2;
 
@@ -31,17 +32,21 @@ public:
         return dim;
     }
 
+    U capacity() const {
+        return cap;
+    }
+
     T& at(U i) const {
         return coords[i];
     }
 
     
-    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, coords{new T[ddim]{}} {
+    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{ddim}, coords{new T[ddim]} {
         cout << "constructed at " << this << endl;
     }
 
 //    Vec(const Vec& v) : Vec{v.dim} {  // Делегирование конструктора
-    Vec(const Vec& v) : dim{v.dim}, coords{new T[dim]} {
+    Vec(const Vec& v) : dim{v.dim}, cap{v.dim}, coords{new T[dim]} {
         cout << "copy constructed at " << this << " from " << &v << endl;
         for(int i = 0; i < dim; i++) {
             coords[i] = v.coords[i];
@@ -49,14 +54,14 @@ public:
     }
 
     template<typename TT, typename UU>
-    Vec(const Vec<TT, UU>& v) : dim{v.size()}, coords{new T[dim]} {
+    Vec(const Vec<TT, UU>& v) : dim{v.size()}, cap{v.size()}, coords{new T[dim]} {
         cout << "template copy constructed at " << this << " from " << &v << endl;
         for(int i = 0; i < dim; i++) {
             coords[i] = v.at(i);
         }
     }
 
-    Vec(Vec&& v) : dim{v.dim}, coords{v.coords} {
+    Vec(Vec&& v) : dim{v.dim}, cap{v.cap}, coords{v.coords} {
         cout << "move constructed at " << this << " from " << &v << endl;
         v.coords = nullptr;
     }
@@ -161,11 +166,14 @@ public:
     }
 };
 
+//TODO: реализовать с использованием capacity
+//TODO: .shrink сжать capacity до dim
+
 template<typename T, typename U>
-void Vec<T,U>::resize(U s) {
+void Vec<T, U>::resize(U s) {
     Vec<T, U> v{s};
     for(U i {}; i < s; i++) {
-        v.coords[i] = (i < dim) ? coords[i] : 0;
+        v.coords[i] = i < dim ? coords[i] : T{};
     }
 
     std::swap(v, *this);
@@ -192,6 +200,7 @@ void Vec<T, U>::zero() {
     fill(T{});    
 }
 
+
 template<typename T, typename U>
 void Vec<T, U>::one() {
     fill(T{1});    
@@ -202,7 +211,7 @@ T& Vec<T, U>::operator[](U i) {
     return at(i);
 }
 
-/******************** Vec<T, U>::neg ********************/
+//-> Vec<T, U>::neg
 
 template<typename T, typename U>
 void Vec<T, U>::neg() {
@@ -219,7 +228,8 @@ Vec<T, U> Vec<T, U>::operator-() {
     return v;
 }
 
-/******************** Vec<T, U>::add ********************/
+//<-
+//-> Vec<T, U>::add
 
 template<typename T, typename U>
 inline void Vec<T, U>::add(const Vec<T, U>& v) {
@@ -247,7 +257,8 @@ void Vec<T, U>::operator+=(const V x) {
     add(x);
 }
 
-/******************** Vec<T, U>::sub ********************/
+//<-
+//-> Vec<T, U>::sub 
 
 template<typename T, typename U>
 inline void Vec<T, U>::sub(const Vec<T, U>& v) {
@@ -283,7 +294,8 @@ void Vec<T, U>::operator-=(const V x) {
     sub(x);
 }
 
-/******************** Vec<T, U>::scale ********************/
+//<-
+//-> Vec<T, U>::scale
 
 template<typename T, typename U>
 inline void Vec<T, U>::scale(T k) {
@@ -298,7 +310,8 @@ void Vec<T, U>::operator*=(const V x) {
     scale(x);
 }
 
-/******************** Vec<T, U> HELPERS ********************/
+//<-
+//-> Vec<T, U> HELPERS
 
 template<typename T, typename U>
 bool less(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -318,7 +331,7 @@ Vec<T, U> scale(Vec<T, U> v, T k) {
     return v;   //NRVO
 }
 
-/******************** Vec<T, U> helper add() ********************/
+//-> Vec<T, U> helper add()
 
 template<typename T, typename U>
 inline Vec<T, U> add(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -359,7 +372,8 @@ Vec<T, U> operator+(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return add(v1, v2);
 }
 
-/******************** Vec<T, U> helper sub() ********************/
+//<-
+//-> Vec<T, U> helper sub()
 
 template<typename T, typename U>
 Vec<T, U> sub(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -390,7 +404,8 @@ Vec<T, U> operator-(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return sub(v1, v2);
 }
 
-/******************** Vec<T, U> helper scale/dot() ********************/
+//<-
+//-> Vec<T, U> helper scale/dot()
 
 template<typename T, typename U>
 T dot(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -421,6 +436,9 @@ template<typename T, typename U>
 T operator*(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return dot(v1, v2);
 }
+
+//<-
+//<-
 
 // TODO: .resize (указываю ему размер, если размер меньше, то массив обрезается, если размер больше, то массив увелчается и заполняется нулями)
 
