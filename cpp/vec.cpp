@@ -41,7 +41,7 @@ public:
     }
 
     
-    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{ddim}, coords{new T[ddim]} {
+    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]} {
         cout << "constructed at " << this << endl;
     }
 
@@ -84,11 +84,12 @@ public:
 
         std::swap(v.coords, coords);
         dim = v.dim;
+        cap = v.cap;
 
         return *this;
     }
         
-
+//> Vec<T, U> Declarations
     double length();
     void fill(T x);
     void zero();
@@ -98,6 +99,7 @@ public:
     void add(const Vec& v);
     void sub(const Vec& v);
     void resize(U s);
+    void shrink();
 
     template<typename V>
     void add(const V x);
@@ -126,7 +128,7 @@ public:
     void operator*=(const V x);
 
     T& operator[](U i);
-
+//<
 //    friend bool less<>(const Vec& v1, const Vec& v2);
 
     template<typename TT, typename UU>
@@ -151,6 +153,7 @@ public:
         cout << this << " {\n";
 
         cout << "\tsize: " << dim << endl;
+        cout << "\tcapacity: " << cap << endl;
         
         cout << "\tcoords: ";
         for(int i = 0; i < dim; i++) {
@@ -166,17 +169,33 @@ public:
     }
 };
 
-//TODO: реализовать с использованием capacity
-//TODO: .shrink сжать capacity до dim
+//> Vec<T, U>::METHODS
 
 template<typename T, typename U>
-void Vec<T, U>::resize(U s) {
-    Vec<T, U> v{s};
-    for(U i {}; i < s; i++) {
-        v.coords[i] = i < dim ? coords[i] : T{};
+void Vec<T, U>::resize(U c) {
+
+    if(c == dim) return;
+
+    if (c < dim) {
+        dim = c;
+    } else {
+        Vec<T, U> v{c};
+        for(U i {}; i < c; i++) {
+            v.coords[i] = i < dim ? coords[i] : T{};
+        }
+        std::swap(v, *this);
+    }
+}
+
+template<typename T, typename U>
+void Vec<T, U>::shrink() {
+    Vec<T, U> v{dim};
+    for(U i {}; i < dim; i++) {
+        v.coords[i] = coords[i];
     }
 
     std::swap(v, *this);
+    cap = dim;
 }
 
 template<typename T, typename U>
@@ -211,7 +230,7 @@ T& Vec<T, U>::operator[](U i) {
     return at(i);
 }
 
-//-> Vec<T, U>::neg
+//> Vec<T, U>::neg
 
 template<typename T, typename U>
 void Vec<T, U>::neg() {
@@ -228,8 +247,8 @@ Vec<T, U> Vec<T, U>::operator-() {
     return v;
 }
 
-//<-
-//-> Vec<T, U>::add
+//<
+//> Vec<T, U>::add
 
 template<typename T, typename U>
 inline void Vec<T, U>::add(const Vec<T, U>& v) {
@@ -257,8 +276,8 @@ void Vec<T, U>::operator+=(const V x) {
     add(x);
 }
 
-//<-
-//-> Vec<T, U>::sub 
+//<
+//> Vec<T, U>::sub 
 
 template<typename T, typename U>
 inline void Vec<T, U>::sub(const Vec<T, U>& v) {
@@ -294,8 +313,8 @@ void Vec<T, U>::operator-=(const V x) {
     sub(x);
 }
 
-//<-
-//-> Vec<T, U>::scale
+//<
+//> Vec<T, U>::scale
 
 template<typename T, typename U>
 inline void Vec<T, U>::scale(T k) {
@@ -310,8 +329,9 @@ void Vec<T, U>::operator*=(const V x) {
     scale(x);
 }
 
-//<-
-//-> Vec<T, U> HELPERS
+//<
+//<
+//> Vec<T, U> HELPERS
 
 template<typename T, typename U>
 bool less(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -331,7 +351,7 @@ Vec<T, U> scale(Vec<T, U> v, T k) {
     return v;   //NRVO
 }
 
-//-> Vec<T, U> helper add()
+//> Vec<T, U> helper add()
 
 template<typename T, typename U>
 inline Vec<T, U> add(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -372,8 +392,8 @@ Vec<T, U> operator+(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return add(v1, v2);
 }
 
-//<-
-//-> Vec<T, U> helper sub()
+//<
+//> Vec<T, U> helper sub()
 
 template<typename T, typename U>
 Vec<T, U> sub(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -404,8 +424,8 @@ Vec<T, U> operator-(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return sub(v1, v2);
 }
 
-//<-
-//-> Vec<T, U> helper scale/dot()
+//<
+//> Vec<T, U> helper scale/dot()
 
 template<typename T, typename U>
 T dot(const Vec<T, U>& v1, const Vec<T, U>& v2) {
@@ -437,10 +457,12 @@ T operator*(const Vec<T, U>& v1, const Vec<T, U>& v2) {
     return dot(v1, v2);
 }
 
-//<-
-//<-
+//<
+//<
 
 // TODO: .resize (указываю ему размер, если размер меньше, то массив обрезается, если размер больше, то массив увелчается и заполняется нулями)
+// TODO: реализовать с использованием capacity
+// TODO: .shrink сжать capacity до dim
 
 int main() {
     Vec<float, int> v1{3};
@@ -565,10 +587,18 @@ int main() {
     v16.print("v16");
 
     v16.resize(4);
-    v16.print("v16");
+    v16.print("v16 resized from 3 to 4");
 
     v16.resize(2);
-    v16.print("v16");
+    v16.print("v16 resized from 4 to 2");
+
+    v16.shrink();
+    v16.print("v16 shrinked");
+
+    Vec v17{4};
+    v17.resize(2);
+    v17.shrink();
+    v17.print("v17");
 
     for(int i = 0; i < 3; i++) {
         cout << "block start \n";
