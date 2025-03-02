@@ -1,5 +1,7 @@
 #include <iostream>
+#include <cassert>
 #include "vec.hpp"
+#include "number.hpp"
 
 int main() {
     Vec<float, int> v1{3};
@@ -18,8 +20,8 @@ int main() {
     Vec v3 = std::move(v1);
     v3.print("v3");
     v3.at(0) = 10;
-    v2.print("v2");
 
+    v2.print("v2");
     v3.one();
     v3.print("v3");
 
@@ -152,4 +154,13 @@ int main() {
     cout << "vv allocated\n";
 
     delete[] vv;    // RAII!
+
+
+    Vec<Number> v18{};
+    v18[0] = 100.;
+
+    cout << v18[0].value << ' ' << v18[1].value << endl;
+//    v18.print("v18");
+    
+    assert(v18[0].value == 100);
 }

@@ -760,8 +760,8 @@ augroup end
 augroup ab
     au!
 
-    au FileType c,cpp,h,hpp   call Ab_c() 
-    au FileType cpp,hpp     call Ab_cpp() 
+    au FileType c,cpp   call Ab_c() 
+    au FileType cpp     call Ab_cpp() 
     au FileType python  call Ab_py() 
     au FileType java    call Ab_java()
 augroup end
@@ -769,9 +769,9 @@ augroup end
 augroup map
     au!
 
-    au FileType c,cpp,h,hpp   call Map_c() 
-    au FileType c,h       call Map_c_only() 
-    au FileType cpp,hpp     call Map_cpp() 
+    au FileType c,cpp   call Map_c() 
+    au FileType c       call Map_c_only() 
+    au FileType cpp     call Map_cpp() 
 augroup end
 
 
