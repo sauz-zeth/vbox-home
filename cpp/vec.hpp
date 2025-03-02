@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <utility>
 #include <cmath>
 
@@ -23,6 +24,7 @@ template<typename T = float, typename U = size_t>
 class Vec {
     U dim;
     U cap;
+    std::allocator<T> al;
     T* coords; 
     static constexpr U DIM_DEFAULT = 2;
 
@@ -41,28 +43,37 @@ public:
     }
 
     
-    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]{}} {
+    // Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]{}} {
+    //     cout << "constructed at " << this << endl;
+    // }
+
+    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{al.allocate(ddim)} {
         cout << "constructed at " << this << endl;
     }
 
 //    Vec(const Vec& v) : Vec{v.dim} {  // Делегирование конструктора
+
 //    TODO: разделить аллокацию и инициализацию массива coords
+
 //    TODO: использовать placement new инициализация отдельных элементов массива,
 //          (сейчас все сначала инициализируется дефолтными значениями, а затем
 //          через присваивание копируются новые значения T, это неэффективно)
 //
-    Vec(const Vec& v) : dim{v.dim}, cap{v.dim}, coords{new T[dim]} {
+    Vec(const Vec& v) : dim{v.dim}, cap{v.dim}, coords{al.allocate(dim)} {
         cout << "copy constructed at " << this << " from " << &v << endl;
-        for(int i = 0; i < dim; i++) {
-            coords[i] = v.coords[i];
+
+        for (int i = 0; i < dim; i++) {
+            new (coords + i) T(v.coords[i]);
         }
+
     }
 
     template<typename TT, typename UU>
-    Vec(const Vec<TT, UU>& v) : dim{v.size()}, cap{v.size()}, coords{new T[dim]} {
+    Vec(const Vec<TT, UU>& v) : dim{v.size()}, cap{v.size()}, coords{al.allocate(dim)} {
         cout << "template copy constructed at " << this << " from " << &v << endl;
-        for(int i = 0; i < dim; i++) {
-            coords[i] = v.at(i);
+
+        for (int i = 0; i < dim; i++) {
+            new (coords + i) T(v.at(i));
         }
     }
 
@@ -172,6 +183,8 @@ public:
     ~Vec() {
         cout << "destructed at " << this << endl;
         delete[] coords;
+
+        al.deallocate(coords, dim);
     }
 };
 
