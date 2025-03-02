@@ -41,11 +41,16 @@ public:
     }
 
     
-    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]} {
+    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]{}} {
         cout << "constructed at " << this << endl;
     }
 
 //    Vec(const Vec& v) : Vec{v.dim} {  // Делегирование конструктора
+//    TODO: разделить аллокацию и инициализацию массива coords
+//    TODO: использовать placement new инициализация отдельных элементов массива,
+//          (сейчас все сначала инициализируется дефолтными значениями, а затем
+//          через присваивание копируются новые значения T, это неэффективно)
+//
     Vec(const Vec& v) : dim{v.dim}, cap{v.dim}, coords{new T[dim]} {
         cout << "copy constructed at " << this << " from " << &v << endl;
         for(int i = 0; i < dim; i++) {
@@ -99,6 +104,7 @@ public:
     void add(const Vec& v);
     void sub(const Vec& v);
     void resize(U s);
+    void reserve(U s);
     void shrink();
 
     template<typename V>
@@ -172,30 +178,44 @@ public:
 //> Vec<T, U>::METHODS
 
 template<typename T, typename U>
-void Vec<T, U>::resize(U c) {
+inline void Vec<T, U>::resize(U s) {
+    reserve(s);
 
-    if(c == dim) return;
-
-    if (c < dim) {
-        dim = c;
-    } else {
-        Vec<T, U> v{c};
-        for(U i {}; i < c; i++) {
-            v.coords[i] = i < dim ? coords[i] : T{};
+    if(s < dim) {
+        for(U i = s; i < dim; i++) {
+            coords[i].~T();
         }
-        std::swap(v, *this);
+        dim = s;
+    }
+    else {
+        for(U i = dim; i < s; i++) {
+            coords[i] = T{};  
+        }
+        dim = s;
     }
 }
 
 template<typename T, typename U>
-void Vec<T, U>::shrink() {
-    Vec<T, U> v{dim};
+inline void Vec<T, U>::reserve(U c) {
+    if(c <= cap) return;
+
+    Vec<T, U> v{c};
     for(U i {}; i < dim; i++) {
         v.coords[i] = coords[i];
     }
+    for(U i = dim; i < v.capacity(); i++) { //костыль
+        v.coords[i].~T();
+    }
+    v.dim = dim;
 
     std::swap(v, *this);
-    cap = dim;
+}
+
+template<typename T, typename U>
+inline void Vec<T, U>::shrink() {
+    Vec<T, U> v = *this;
+
+    std::swap(v, *this);
 }
 
 template<typename T, typename U>
@@ -460,155 +480,3 @@ T operator*(const Vec<T, U>& v1, const Vec<T, U>& v2) {
 //<
 //<
 
-// TODO: .resize (указываю ему размер, если размер меньше, то массив обрезается, если размер больше, то массив увелчается и заполняется нулями)
-// TODO: реализовать с использованием capacity
-// TODO: .shrink сжать capacity до dim
-
-int main() {
-    Vec<float, int> v1{3};
-    v1.at(0) = 23.3;
-    v1.at(1) = 2.2;
-    v1.print("v1");
-    cout << v1.length() << endl;
-    v1.zero();
-    v1.print("v1");
-
-    Vec v2 = v1;
-    v2.print("v2");
-    v2.at(1) = 3.3;
-    v1.print("v1");
-
-    Vec v3 = std::move(v1);
-    v3.print("v3");
-    v3.at(0) = 10;
-    v2.print("v2");
-
-    v3.one();
-    v3.print("v3");
-
-    v2.print("v2");
-    v2.add(v2);
-    v2.print("v2");
-    v2.scale(10);
-    v2.print("v2");
-
-    v2.print("v2");
-//    Vec v4 {scale(v2, float{23})};
-    Vec v4 {scale<float>(v2, 23)};
-    v4.print("v4");
-
-    v2.at(0) = 1;
-    v2.print("v2");
-    v3.print("v3");
-
-    Vec v5 {2};
-    v5.one();
-    v5.print("v5");
-
-    Vec v6 = sub(v3, v2);
-    v6.print("v3 sub v2");
-
-    cout << "v3 dot v2: " << dot(v3, v2) << endl;
-    
-    v3.print("v3");
-    v3 += v2;
-    v3.print("v3 += v2");
-
-    cout << less(v5, v3) << endl;
-
-    v2.print("v2");
-    
-    Vec v7 = v3 + v2;
-    v7.print("v3 + v2");
-
-    Vec v8 = operator+<float>(v3, v2);
-    v8.print("v3 + v2");
-
-    v8 += 5;
-    v8.print("v8 += 5");
-
-    Vec v9 = v8 + 20;
-    v9.print("v8 + 20");
-
-    Vec v10 = 20 + v9;
-    v10.print("20 + v9");
-
-    v10 -= 20;
-    v10.print("v10 = v9 - 20");
-
-    Vec v11 = v8 - v10;
-    v11.print("V8 - v10");
-
-    Vec v12 = 20 - v10;
-    v12.print("20 - v10");
-    Vec v13 = -v12;
-    v13.print("v13");
-
-    Vec<int, int> v14 {};
-    v14.at(0) = 4;
-    v14.at(1) = 8;
-
-    v14.print("v14");
-
-    Vec<float, int> v15 = v14;
-    v15.print("v15");
-
-    Vec v16 = v15 * 3;
-    v16.print("v16");
-
-    cout << "v16 * v15: " << v16 * v15 << endl;
-
-    v16 *= 0.5f;
-    v16.print("v16");
-    
-    v16[0] = 20;
-    cout << "v16[0] = 20: " << v16[0] << endl;
-    cout << "v16[1]: " << v16[1] << endl;
-
-    v15.print("v15");
-    v16 = v15;
-    v16.print("v16 = v15");
-
-    v14.print("v14");
-    v15 = std::move(v14);
-    v15.print("v15 = move(v14)");
-
-    v15 = Vec{3};
-    v15.print("v15");
-
-    v16 = v14 = v15;
-    v16.print("v16");
-    v16.print("v14");
-
-
-    v16.at(0) = 1;
-    v16.at(1) = 3;
-    v16.at(2) = 5;
-    v16.print("v16");
-
-    v16.resize(4);
-    v16.print("v16 resized from 3 to 4");
-
-    v16.resize(2);
-    v16.print("v16 resized from 4 to 2");
-
-    v16.shrink();
-    v16.print("v16 shrinked");
-
-    Vec v17{4};
-    v17.resize(2);
-    v17.shrink();
-    v17.print("v17");
-
-    for(int i = 0; i < 3; i++) {
-        cout << "block start \n";
-        Vec<float, int> v3{4};
-        v3.at(0) = 1;
-        cout << "block end \n";
-    }
-
-    Vec<> *vv {new Vec<>[5]}; 
-    cout << "vv allocated\n";
-
-    delete[] vv;    // RAII!
-}

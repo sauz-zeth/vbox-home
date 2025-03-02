@@ -9,11 +9,14 @@
 # Разрешить папку c и файлы .c и .txt внутри
 !c/
 !c/*.c
+!c/*.h
 !c/*.txt
 
 # Разрешить папку cpp и файлы .cpp, .c и .txt внутри
 !cpp/
 !cpp/*.cpp
+!cpp/*.hpp
+!cpp/*.h
 !cpp/*.c
 !cpp/*.txt
 

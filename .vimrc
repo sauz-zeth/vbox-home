@@ -1,4 +1,4 @@
-" .vimrc * version 2.3.4-u0.1
+" .vimrc * version 2.3.10-u0.1
 
 set nocp               "nocompatible
 
@@ -31,9 +31,6 @@ set shellcmdflag=-c
 "    set shellcmdflag=-c
 "endif
 
-set foldmethod=marker
-set foldmarker=//->,//<-
-
 set enc=utf-8           "кодировка
 "set ff=unix            "'fileformat' - символ конца строки при чтении/записи в файл
 set mouse=a             "включение мыши
@@ -62,6 +59,7 @@ set path+=/usr/include/x86_64-linux-gnu,/usr/include/c++/11     "поиск за
 set spr                 "'splitright' - новое окно справа
 set bs=indent,eol,start     "'backspace' - свободное удаление по BS
 set ul=1000             "'undolevels' - размер истории изменений
+set noea                "'equalalways' - выравнивать размеры окон при открытии/закрытии 
 "set kp=man              "'keywordprg' - программа просмотра ключевых слов
 "set km=startsel,stopsel    "'keymodel' - выделение стрелками
 "set bo=all             "'belloff' - отключение звукового сигнала
@@ -290,7 +288,7 @@ fu! Ft2()
         !gc "%:p:r"
         "!gcc -o "%:r" "%" -lm -time && "%:p:r" 
     elseif &ft == 'cpp'
-        !g++ -Wfatal-errors -o "%:r" "%" && "%:p:r"
+        !g++ -Wfatal-errors -g3 -o "%:r" "%" && "%:p:r"
     elseif &ft == 'pascal'
         !fpc "%" 2> >(sed '/ld.bfd/d') && "%:p:r" 
     elseif &ft == 'python'
@@ -330,7 +328,7 @@ fu! Fta()
         let cmd = 'gc "%:p:r"'
         "ter ++shell gcc -o "%:r" "%" -lm -time && "%:p:r" 
     elseif &ft == 'cpp'
-        let cmd = 'g++ -o "%:r" "%" && "%:p:r"'
+        let cmd = 'g++ -g3 -o "%:r" "%" && "%:p:r"'
     elseif &ft == 'pascal'
         let cmd = 'fpc "%" 2> >(sed ''/ld.bfd/d'') && "%:p:r"'
     elseif &ft == 'python'
@@ -367,7 +365,7 @@ fu! Ft2a()
         let cmd = 'gc "%:p:r"'
         "ter ++shell gcc -o "%:r" "%" -lm -time && "%:p:r" 
     elseif &ft == 'cpp'
-        let cmd = 'g++ -Wfatal-errors -o "%:r" "%" && "%:p:r"'
+        let cmd = 'g++ -Wfatal-errors -g3 -o "%:r" "%" && "%:p:r"'
     elseif &ft == 'pascal'
         let cmd = 'fpc "%" 2> >(sed ''/ld.bfd/d'') && "%:p:r"'
     elseif &ft == 'python'
@@ -411,10 +409,6 @@ nnoremap <S-F12> <esc>:up<cr>:!!<cr>
 set <F16>=[19;5~  "<C-F8>
 nmap <F16> :set list!<cr>
 
-"Compile and run gdb       
-nnoremap <S-M-Down> <esc>:!gcd "%:p:r"<cr>
-imap <S-M-Down> <esc><S-M-Down>
-
 "вставка с заменой
 nnoremap <leader>S dd"0P
 
@@ -432,8 +426,8 @@ nnoremap <leader><Space> i‗<esc>r
 nnoremap gb go
 
 "вставка новой строки
-nnoremap go o<esc>
-nnoremap gO O<esc>
+nnoremap go o<esc>k
+nnoremap gO O<esc>j
 nnoremap <leader>o o<esc>
 nnoremap <leader>O O<esc>
 
@@ -574,7 +568,8 @@ noremap <leader>s <esc>:call Ls()<cr>
 
 "инкремент версии
 fu! VerInc()
-    if empty(expand('%:e'))
+    let ext = expand('%:e')
+    if empty(ext)
         echoh ErrorMsg | echo "No extension!" | echoh None
         return
     endif
@@ -594,7 +589,46 @@ fu! VerInc()
         exe 'save' filename
     endif
 endfu
-nnoremap <leader>n <esc>:call VerInc()<cr>
+nnoremap <silent> <leader>n <esc>:call VerInc()<cr>
+
+"список версий
+fu! VerList()
+    let ext = expand('%:e')
+    if empty(ext)
+        echoh ErrorMsg | echo "No extension!" | echoh None
+        return
+    endif
+
+    let root = substitute(expand('%:r'), '\vv(\d+)$', '', '')
+    let list = glob(root..'*.'..ext, 0, 1)
+    for name in list
+        echo fnamemodify(name, ":t")
+    endfor
+endfu
+nnoremap <silent> <leader>f <esc>:call VerList()<cr>
+
+fu! VerSwitch(index)
+    let ext = expand('%:e')
+    if empty(ext)
+        echoh ErrorMsg | echo "No extension!" | echoh None
+        return
+    endif
+
+    let root = substitute(expand('%:r'), '\vv(\d+)$', '', '')
+    let suffix = a:index != 1 ? 'v'..a:index : ''
+    let filename = root..suffix..'.'..ext
+
+    let action = glob(filename)->empty() ? 'save' : 'e'
+
+    try
+        exe action filename
+    catch /^Vim(edit):E37/
+        echoh ErrorMsg | echo "Unsaved changes!" | echoh None
+    endtry
+endfu
+for i in range(1, 9)
+    exe 'nnoremap <silent> <leader>'..i..' <esc>:call VerSwitch('..i..')<cr>'
+endfor
 
 "заковычиватель
 nnoremap <leader>q ciW""PW
@@ -623,9 +657,11 @@ fu! Comment()
         let comstr = '#'
     endif
 
+    set paste
     exe "normal 0i"..comstr.."\<esc>"
     exe 's+^'..comstr..'\(\s*\)'..comstr..'+\1+e'
     normal +
+    set nopaste
 endfu
 
 noremap <C-_> :call Comment()<cr>
@@ -661,6 +697,9 @@ com! -nargs=1 -complete=file -bar H sp <args> | resize 12 | winc j      "отк�
 com! -nargs=1 -complete=file -bar T $tabnew <args>.c | H <args>.h            "открытие модуля С
 com! -nargs=1 -complete=file TR R <args>.c | H <args>.h                 "открытие модуля С справа
 com! -nargs=1 -complete=file TL L <args>.c | H <args>.h                 "открытие модуля С слева
+com! -nargs=1 -complete=file -bar TPP $tabnew <args>.cpp | H <args>.h            "открытие модуля С
+com! -nargs=1 -complete=file TRPP R <args>.cpp | H <args>.h                 "открытие модуля С справа
+com! -nargs=1 -complete=file TLPP L <args>.cpp | H <args>.h                 "открытие модуля С слева
 com! -nargs=1 -complete=file TT 
             \T <args> |
             \0r template.c |
@@ -676,8 +715,8 @@ com! CL winc t | q | q | winc p           "закрытие модуля сле�
 com! CR winc b | q | q | winc p           "закрытие модуля справа
 com! CM winc k | q | q                    "закрытие текущего модуля
 
-com! -nargs=? -complete=tag G vimgrep/<args>/gj **/*.[ch] | copen       "vimgrep + quickfix
-com! -nargs=1 S %s/<args>/gc                                            "global substitute
+com! -nargs=? -complete=tag G vimgrep/<args>/gj **/*.[ch] **/*.cpp | copen       "vimgrep + quickfix
+com! -nargs=1 S %s/<args>/gc                           "global substitute
 
 
 "-------------------- ПОДСВЕТКА СИНТАКСИСА --------------------
@@ -721,8 +760,8 @@ augroup end
 augroup ab
     au!
 
-    au FileType c,cpp   call Ab_c() 
-    au FileType cpp     call Ab_cpp() 
+    au FileType c,cpp,h,hpp   call Ab_c() 
+    au FileType cpp,hpp     call Ab_cpp() 
     au FileType python  call Ab_py() 
     au FileType java    call Ab_java()
 augroup end
@@ -730,8 +769,9 @@ augroup end
 augroup map
     au!
 
-    au FileType c,cpp   call Map_c() 
-    au FileType cpp     call Map_cpp() 
+    au FileType c,cpp,h,hpp   call Map_c() 
+    au FileType c,h       call Map_c_only() 
+    au FileType cpp,hpp     call Map_cpp() 
 augroup end
 
 
@@ -743,6 +783,14 @@ fu! Map_c()
     nnoremap <buffer> <leader>} :s/\(\S\)\s*$/\1 /e<cr>A <bs>{<cr> <bs><cr>}<esc>kI
     nmap <buffer> <leader>{ <leader>}
     nmap <buffer> <leader>b <leader>}
+
+endfu
+
+"c_only
+fu! Map_c_only()
+    "Compile and run gdb       
+    nnoremap <S-M-Down> <esc>:!gcd "%:p:r"<cr>
+    imap <S-M-Down> <esc><S-M-Down>
 
 endfu
 
@@ -764,7 +812,7 @@ fu! Ab_c()
     iab <buffer> #l #include <stdlib.h>
     iab <buffer> #m #include <math.h>
 
-    iab <buffer> pr  printf("");<left><left><left>
+    iab <buffer> prt printf("");<left><left><left>
     iab <buffer> prn printf("\n");<esc>F\i
     iab <buffer> pri printf("%d\n", _);<esc>F_s
     iab <buffer> prl printf("%ld\n", _);<esc>F_s
@@ -803,7 +851,7 @@ endfu
 
 "python
 fu! Ab_py()
-    iab <buffer> pr print()<esc>i
+    iab <buffer> prt print()<esc>i
 
     iab <buffer> fori for i in range():<esc>F)i
     iab <buffer> forj for j in range():<esc>F)i
@@ -820,4 +868,4 @@ endfu
 iab #b #!/usr/bin/bash
 iab #p #!/usr/bin/python3
 
-iab --- —
+iab -#_ —
