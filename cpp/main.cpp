@@ -163,4 +163,6 @@ int main() {
 //    v18.print("v18");
     
     assert(v18[0].value == 100);
+
+    Storage<float, int> st;
 }

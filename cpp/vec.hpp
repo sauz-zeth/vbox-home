@@ -46,11 +46,11 @@ public:
 
     
     // Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]{}} {
-    //     cout << "constructed at " << this << endl;
+    //     cout << "Vec constructed at " << this << endl;
     // }
 
     Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{ddim}, coords{al.allocate(ddim)} {
-        cout << "constructed at " << this << endl;
+        cout << "Vec constructed at " << this << endl;
 
         for(U i {}; i < dim; i++) {
             new(coords + i) T{};
@@ -66,7 +66,7 @@ public:
 //          через присваивание копируются новые значения T, это неэффективно)
 //
     Vec(const Vec& v) : dim{v.dim}, cap{v.dim}, coords{al.allocate(v.dim)} {
-        cout << "copy constructed at " << this << " from " << &v << endl;
+        cout << "Vec copy constructed at " << this << " from " << &v << endl;
 
         for(U i {}; i < dim; i++) {
             new(coords + i) T{v.coords[i]};
@@ -76,7 +76,7 @@ public:
 
     template<typename TT, typename UU>
     Vec(const Vec<TT, UU>& v) : dim{v.size()}, cap{v.size()}, coords{al.allocate(v.size())} {
-        cout << "template copy constructed at " << this << " from " << &v << endl;
+        cout << "Vec template copy constructed at " << this << " from " << &v << endl;
 
         for(U i {}; i < dim; i++) {
             new(coords + i) T{static_cast<T>(v.at(i))};
@@ -84,7 +84,7 @@ public:
     }
 
     Vec(Vec&& v) : dim{v.dim}, cap{v.cap}, coords{v.coords} {
-        cout << "move constructed at " << this << " from " << &v << endl;
+        cout << "Vec move constructed at " << this << " from " << &v << endl;
         
         v.coords = nullptr;
         v.cap = 0;
@@ -92,7 +92,7 @@ public:
     }
 
     Vec& operator=(const Vec& v) {
-        cout << "copy assignment at " << this << " from " << &v << endl;
+        cout << "Vec copy assignment at " << this << " from " << &v << endl;
 
         Vec vv = v;
         std::swap(vv, *this);
@@ -105,7 +105,7 @@ public:
 // a = move(b)
 // b = move(x)
     Vec& operator=(Vec&& v) {
-        cout << "move assignment at " << this << " from " << &v << endl;
+        cout << "Vec move assignment at " << this << " from " << &v << endl;
 
         std::swap(v.coords, coords);
         std::swap(dim, v.dim);
@@ -198,7 +198,7 @@ public:
 
         al.deallocate(coords, cap);
 
-        cout << "destructed at " << this << endl;
+        cout << "Vec destructed at " << this << endl;
     }
 };
 
