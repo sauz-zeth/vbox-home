@@ -164,5 +164,7 @@ int main() {
     
     assert(v18[0].value == 100);
 
-    Storage<float, int> st;
+    const Storage<float, int> st;
+    st[0];
+    if(!st) cout << "st" << endl;
 }

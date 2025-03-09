@@ -25,9 +25,7 @@ using std::endl;
 template<typename T = float, typename U = size_t>
 class Vec {
     U dim;
-    U cap;
-    std::allocator<T> al;
-    T *coords; // Storage coords;
+    Storage<T, U> coords;
     static constexpr U DIM_DEFAULT = 2;
 
 public:
@@ -37,7 +35,7 @@ public:
     }
 
     U capacity() const {
-        return cap;
+        return coords.capacity();
     }
 
     T& at(U i) const {
@@ -49,11 +47,11 @@ public:
     //     cout << "Vec constructed at " << this << endl;
     // }
 
-    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{ddim}, coords{al.allocate(ddim)} {
+    Vec(U ddim = DIM_DEFAULT) : dim{ddim}, coords{ddim} {
         cout << "Vec constructed at " << this << endl;
 
         for(U i {}; i < dim; i++) {
-            new(coords + i) T{};
+            new(&coords[i]) T{};
         }
     }
 
@@ -65,29 +63,27 @@ public:
 //          (сейчас все сначала инициализируется дефолтными значениями, а затем
 //          через присваивание копируются новые значения T, это неэффективно)
 //
-    Vec(const Vec& v) : dim{v.dim}, cap{v.dim}, coords{al.allocate(v.dim)} {
+    Vec(const Vec& v) : dim{v.dim}, coords{v.dim} {
         cout << "Vec copy constructed at " << this << " from " << &v << endl;
 
         for(U i {}; i < dim; i++) {
-            new(coords + i) T{v.coords[i]};
+            new(&coords[i]) T{v.coords[i]};
         }
 
     }
 
     template<typename TT, typename UU>
-    Vec(const Vec<TT, UU>& v) : dim{v.size()}, cap{v.size()}, coords{al.allocate(v.size())} {
+    Vec(const Vec<TT, UU>& v) : dim{v.size()}, coords{v.size()} {
         cout << "Vec template copy constructed at " << this << " from " << &v << endl;
 
         for(U i {}; i < dim; i++) {
-            new(coords + i) T{static_cast<T>(v.at(i))};
+            new(&coords[i]) T{static_cast<T>(v.at(i))};
         }
     }
 
-    Vec(Vec&& v) : dim{v.dim}, cap{v.cap}, coords{v.coords} {
+    Vec(Vec&& v) : dim{v.dim}, coords{std::move(v.coords)} {
         cout << "Vec move constructed at " << this << " from " << &v << endl;
         
-        v.coords = nullptr;
-        v.cap = 0;
         v.dim = 0;
     }
 
@@ -107,9 +103,8 @@ public:
     Vec& operator=(Vec&& v) {
         cout << "Vec move assignment at " << this << " from " << &v << endl;
 
-        std::swap(v.coords, coords);
+        swap(v.coords, coords);
         std::swap(dim, v.dim);
-        std::swap(cap, v.cap);
 
         return *this;
     }
@@ -124,7 +119,8 @@ public:
     void add(const Vec& v);
     void sub(const Vec& v);
     void resize(U s);
-    void reserve(U s);
+    void reserve(U c);
+    void recap(U c);
     void shrink();
 
     template<typename V>
@@ -153,7 +149,7 @@ public:
     template<typename V>
     void operator*=(const V x);
 
-    T& operator[](U i);
+    T& operator[](U i) const;
 //<
 //    friend bool less<>(const Vec& v1, const Vec& v2);
 
@@ -179,7 +175,7 @@ public:
         cout << this << " {\n";
 
         cout << "\tsize: " << dim << endl;
-        cout << "\tcapacity: " << cap << endl;
+        cout << "\tcapacity: " << capacity() << endl;
         
         cout << "\tcoords: ";
         for(U i {}; i < dim; i++) {
@@ -190,18 +186,16 @@ public:
     }
 
     ~Vec() {
-        if(!coords) return;
-
-        for(T *p = coords; p != coords + dim; ++p) {
+        for(T *p = &coords[0]; p != &coords[0] + dim; ++p) {
             p->~T();
         }
-
-        al.deallocate(coords, cap);
 
         cout << "Vec destructed at " << this << endl;
     }
 };
 
+//TODO: .clear очишает вектор не меняя хранилище
+// применить clear к имеющимся операциям
 //> Vec<T, U>::METHODS
 
 template<typename T, typename U>
@@ -223,29 +217,32 @@ inline void Vec<T, U>::resize(U s) {
 }
 
 template<typename T, typename U>
-inline void Vec<T, U>::reserve(U c) {
-    if(c <= cap) return;
+inline void Vec<T, U>::recap(U c) {
+    if(c < dim) return;
         
-    T *coords1 = al.allocate(c);
+    Storage<T, U> coords1{c};
     
     for(U i {}; i < dim; i++) {
-        new(coords1 + i) T{coords[i]};
+        new(&coords1[i]) T{std::move(coords[i])};
     }
 
-    for(T *p = coords; p != coords + dim; ++p) {
+    for(T *p = &coords[0]; p != &coords[0] + dim; ++p) {
         p->~T();
     }
 
-    al.deallocate(coords, cap);
+    swap(coords, coords1);
+}
 
-    coords = coords1;
+template<typename T, typename U>
+inline void Vec<T, U>::reserve(U c) {
+    if(c <= capacity()) return;
+
+    recap(c);
 }
 
 template<typename T, typename U>
 inline void Vec<T, U>::shrink() {
-    Vec<T, U> v = *this;
-
-    std::swap(v, *this);
+    recap(dim);
 }
 
 template<typename T, typename U>
@@ -276,7 +273,7 @@ void Vec<T, U>::one() {
 }
 
 template<typename T, typename U>
-T& Vec<T, U>::operator[](U i) {
+T& Vec<T, U>::operator[](U i) const {
     return at(i);
 }
 
