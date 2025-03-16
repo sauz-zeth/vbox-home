@@ -165,6 +165,7 @@ int main() {
     assert(v18[0].value == 100);
 
     const Storage<float, int> st;
-    st[0];
+//    const_cast<float&>(st[0]) = 12;
     if(!st) cout << "st" << endl;
+
 }

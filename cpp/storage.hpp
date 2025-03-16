@@ -16,7 +16,11 @@ public:
         return cap;
     }
 
-    T& at(U i) const {
+    const T& at(U i) const {
+        return data[i];
+    }
+
+    T& at(U i) {
         return data[i];
     }
 
@@ -36,34 +40,11 @@ public:
         st.cap = 0;
     }
 
-    void fill(const T& value, U begin, U end) {
-        for(U i = begin; i < end; i++) {
-            new(data + i) T{value};
-        }
+    const T& operator[](U i) const {
+        return at(i);
     }
 
-    void copy(const Storage& st, U begin, U end) {
-        for(U i = begin; i < end; i++) {
-            new(data + i) T{st.at(i)};
-        }
-    }
-
-    template<typename TT, typename UU>
-    void copy(const Storage<TT, UU>& st, U begin, U end) {
-        for(U i = begin; i < cap && i < st.capacity(); i++) {
-            new(data + i) T{static_cast<T>(st.at(i))};
-        }
-    }
-
-    void destruct(U begin, U end) {
-        if(!cap) return;
-
-        for(T* p = data + begin; p != data + end; ++p) {
-            p->~T();
-        }
-    }
-
-    T& operator[](U i) const {
+    T& operator[](U i) {
         return at(i);
     }
 
@@ -72,6 +53,14 @@ public:
     }
 
     T* end() {
+        return data + cap;
+    }
+
+    const T* cbegin() const {
+        return data;
+    }
+
+    const T* cend() const {
         return data + cap;
     }
 

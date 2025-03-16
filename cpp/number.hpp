@@ -7,6 +7,10 @@ struct Number {
         std::cout << "Number constructed at " << this << std::endl;
     }
 
+    Number(const Number& n) : value{n.value} {
+        std::cout << "Number copy constructed at " << this << std::endl;
+    }
+
     Number(int x) : value{x} {
         std::cout << "Number constructed from int at " << this << std::endl;
     }

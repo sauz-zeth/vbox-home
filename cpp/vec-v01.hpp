@@ -2,7 +2,6 @@
 #include <memory>
 #include <utility>
 #include <cmath>
-#include <algorithm>
 
 #include "storage.hpp"
 
@@ -29,8 +28,6 @@ class Vec {
     Storage<T, U> coords;
     static constexpr U DIM_DEFAULT = 2;
 
-    void recap(U c);
-
 public:
 
     U size() const {
@@ -49,23 +46,6 @@ public:
         return coords[i];
     }
 
-    T* begin() {
-        return coords.begin();
-    }
-
-    T* end() {
-        return coords.begin() + dim;
-    }
-
-    const T* cbegin() const {
-        return coords.cbegin();
-    }
-
-    const T* cend() const {
-        return coords.cbegin() + dim;
-    }
-    
-
     
     // Vec(U ddim = DIM_DEFAULT) : dim{ddim}, cap{dim}, coords{new T[ddim]{}} {
     //     cout << "Vec constructed at " << this << endl;
@@ -74,7 +54,9 @@ public:
     Vec(U ddim = DIM_DEFAULT) : dim{ddim}, coords{ddim} {
         cout << "Vec constructed at " << this << endl;
 
-        std::uninitialized_fill(begin(), end(), T{});
+        for(U i {}; i < dim; i++) {
+            new(&coords[i]) T{};
+        }
     }
 
 //    Vec(const Vec& v) : Vec{v.dim} {  // Делегирование конструктора
@@ -88,14 +70,19 @@ public:
     Vec(const Vec& v) : dim{v.dim}, coords{v.dim} {
         cout << "Vec copy constructed at " << this << " from " << &v << endl;
 
-        std::uninitialized_copy(v.cbegin(), v.cend(), begin());
+        for(U i {}; i < dim; i++) {
+            new(&coords[i]) T{v.coords[i]};
+        }
+
     }
 
     template<typename TT, typename UU>
     Vec(const Vec<TT, UU>& v) : dim{v.size()}, coords{v.size()} {
         cout << "Vec template copy constructed at " << this << " from " << &v << endl;
 
-        std::uninitialized_copy(v.cbegin(), v.cend(), begin());
+        for(U i {}; i < dim; i++) {
+            new(&coords[i]) T{static_cast<T>(v.at(i))};
+        }
     }
 
     Vec(Vec&& v) : dim{v.dim}, coords{std::move(v.coords)} {
@@ -137,6 +124,7 @@ public:
     void sub(const Vec& v);
     void resize(U s);
     void reserve(U c);
+    void recap(U c);
     void shrink();
 
     template<typename V>
@@ -203,15 +191,16 @@ public:
     }
 
     ~Vec() {
-        std::destroy(begin(), end());
+        for(T *p = &coords[0]; p != &coords[0] + dim; ++p) {
+            p->~T();
+        }
 
         cout << "Vec destructed at " << this << endl;
     }
 };
 
-// TODO: .clear очишает вектор не меняя хранилище
+//TODO: .clear очишает вектор не меняя хранилище
 // применить clear к имеющимся операциям
-// TODO: .assign(T* first, T* last) copy assignment из диапазона [first, last)
 //> Vec<T, U>::METHODS
 
 template<typename T, typename U>
@@ -219,12 +208,17 @@ inline void Vec<T, U>::resize(U s) {
     reserve(s);
 
     if(s < dim) {
-        std::destroy(begin() + s, end());
-    } else {
-        std::fill(begin() + dim, begin() + s, T{});
+        for(U i = s; i < dim; i++) {
+            coords[i].~T();
+        }
+        dim = s;
     }
-
-    dim = s;
+    else {
+        for(U i = dim; i < s; i++) {
+            coords[i] = T{};  
+        }
+        dim = s;
+    }
 }
 
 template<typename T, typename U>
@@ -233,8 +227,13 @@ inline void Vec<T, U>::recap(U c) {
         
     Storage<T, U> coords1{c};
     
-    std::uninitialized_move(begin(), end(), coords1.begin());
-    std::destroy(begin(), end());
+    for(U i {}; i < dim; i++) {
+        new(&coords1[i]) T{std::move(coords[i])};
+    }
+
+    for(T *p = &coords[0]; p != &coords[0] + dim; ++p) {
+        p->~T();
+    }
 
     swap(coords, coords1);
 }
@@ -262,7 +261,9 @@ double Vec<T, U>::length() {
 
 template<typename T, typename U>
 void Vec<T, U>::fill(T x) {
-    std::fill(begin(), end(), x);
+    for(U i {}; i < dim; i++) {
+        coords[i] = x;
+    }
 }
 
 template<typename T, typename U>
@@ -316,8 +317,8 @@ inline void Vec<T, U>::add(const Vec<T, U>& v) {
 template<typename T, typename U>
 template<typename V>
 inline void Vec<T, U>::add(const V x) {
-    for(T& vx : *this) {
-        vx += x;
+    for(U i {}; i < dim; i++) {
+        coords[i] += x;
     }
 }
 

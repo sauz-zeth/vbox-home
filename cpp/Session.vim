@@ -3,7 +3,6 @@ if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
 imap <C-_> 
-imap <M-S-Down> <M-S-Down>
 imap <M-Up> <M-Up>
 imap <M-Down> <S-F11>
 imap <S-F11> <S-F11>
@@ -42,7 +41,17 @@ nnoremap \Z 0xj0
 nnoremap \z 0i#j0
 nnoremap \w di"hPlxxW
 nnoremap \q ciW""PW
-nnoremap \n :call VerInc()
+nnoremap <silent> \9 :call VerSwitch(9)
+nnoremap <silent> \8 :call VerSwitch(8)
+nnoremap <silent> \7 :call VerSwitch(7)
+nnoremap <silent> \6 :call VerSwitch(6)
+nnoremap <silent> \5 :call VerSwitch(5)
+nnoremap <silent> \4 :call VerSwitch(4)
+nnoremap <silent> \3 :call VerSwitch(3)
+nnoremap <silent> \2 :call VerSwitch(2)
+nnoremap <silent> \1 :call VerSwitch(1)
+nnoremap <silent> \f :call VerList()
+nnoremap <silent> \n :call VerInc()
 noremap \s :call Ls()
 noremap \v :call Ve()
 noremap \l :set cul!
@@ -72,8 +81,8 @@ xmap gx <Plug>NetrwBrowseXVis
 nmap gx <Plug>NetrwBrowseX
 nmap <silent> gh :call Move_hor(-1)
 nmap <silent> gl :call Move_hor(1)
-nnoremap gO O
-nnoremap go o
+nnoremap gO Oj
+nnoremap go ok
 nnoremap gb go
 nmap z/ 
 vmap z/ 
@@ -96,7 +105,6 @@ nmap <silent> <C-Down> :call Move_down()
 nmap <silent> <C-J> :call Move_down()
 vmap <silent> <C-Down> :m<Home>silent! <End>'>+1gv
 vmap <silent> <C-J> :m<Home>silent! <End>'>+1gv
-nnoremap <M-S-Down> :!gcd "%:p:r"
 nmap <F16> :set list!
 nnoremap <S-F12> :up:!!
 nmap <M-Up> :call Ft2()
@@ -139,7 +147,7 @@ lnoremap  
 noremap!  
 cnoremap  
 imap  
-iabbr --- —
+iabbr -#_ —
 iabbr #p #!/usr/bin/python3
 iabbr #b #!/usr/bin/bash
 let &cpo=s:cpo_save
@@ -149,6 +157,7 @@ set autoindent
 set autowrite
 set background=dark
 set backspace=indent,eol,start
+set noequalalways
 set expandtab
 set fileencodings=ucs-bom,utf-8,default,latin1
 set helplang=ru
@@ -188,10 +197,35 @@ endif
 set shortmess=aoO
 argglobal
 %argdel
-$argadd ~/cpp/vec.cpp
-edit ~/cpp/vec.cpp
+$argadd ~/cpp/vec.hpp
+edit ~/cpp/vec.hpp
+let s:save_splitbelow = &splitbelow
+let s:save_splitright = &splitright
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+wincmd _ | wincmd |
+split
+1wincmd k
+wincmd w
+let &splitbelow = s:save_splitbelow
+let &splitright = s:save_splitright
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 97 + 97) / 195)
+exe '2resize ' . ((&lines * 23 + 24) / 49)
+exe 'vert 2resize ' . ((&columns * 97 + 97) / 195)
+exe '3resize ' . ((&lines * 23 + 24) / 49)
+exe 'vert 3resize ' . ((&columns * 97 + 97) / 195)
 argglobal
-balt ~/.vimrc
+balt storage.hpp
 nnoremap <buffer> \> Icin >> $a;$
 nnoremap <buffer> \< Icout << $a << endl;$
 nmap <buffer> \b \}
@@ -299,7 +333,7 @@ iabbr <buffer> prx printf("%x\n", _);F_s
 iabbr <buffer> prl printf("%ld\n", _);F_s
 iabbr <buffer> pri printf("%d\n", _);F_s
 iabbr <buffer> prn printf("\n");F\i
-iabbr <buffer> pr printf("");<Left><Left><Left>
+iabbr <buffer> prt printf("");<Left><Left><Left>
 iabbr <buffer> #m #include <math.h>
 iabbr <buffer> #l #include <stdlib.h>
 iabbr <buffer> #h #include <stdio.h>#include <stdlib.h>
@@ -350,13 +384,15 @@ setlocal foldenable
 setlocal foldexpr=0
 setlocal foldignore=#
 setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
+set foldmarker=//>,//<
+setlocal foldmarker=//>,//<
+set foldmethod=marker
+setlocal foldmethod=marker
 setlocal foldminlines=1
 setlocal foldnestmax=20
 setlocal foldtext=foldtext()
 setlocal formatexpr=
-setlocal formatoptions=tcq
+setlocal formatoptions=croql
 setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
 setlocal formatprg=
 setlocal grepprg=
@@ -433,31 +469,536 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-silent! normal! zE
-205,220fold
-222,248fold
-250,284fold
-286,299fold
-321,360fold
-362,391fold
-393,423fold
-let &fdl = &fdl
-286
-normal! zo
-let s:l = 205 - ((14 * winheight(0) + 20) / 40)
+let s:l = 20 - ((19 * winheight(0) + 23) / 47)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 205
+keepjumps 20
+normal! 054|
+wincmd w
+argglobal
+if bufexists("main.cpp") | buffer main.cpp | else | edit main.cpp | endif
+balt storage.hpp
+nnoremap <buffer> \> Icin >> $a;$
+nnoremap <buffer> \< Icout << $a << endl;$
+nmap <buffer> \b \}
+nmap <buffer> \{ \}
+let s:cpo_save=&cpo
+set cpo&vim
+nnoremap <buffer> \} :s/\(\S\)\s*$/\1 /eA <BS>{ <BS>}kI
+lnoremap <buffer> " Э
+lnoremap <buffer> # №
+lnoremap <buffer> $ ;
+lnoremap <buffer> & ?
+lnoremap <buffer> ' э
+lnoremap <buffer> , б
+lnoremap <buffer> . ю
+lnoremap <buffer> / .
+lnoremap <buffer> : Ж
+lnoremap <buffer> ; ж
+lnoremap <buffer> < Б
+lnoremap <buffer> > Ю
+lnoremap <buffer> ? ,
+lnoremap <buffer> @ "
+lnoremap <buffer> A Ф
+lnoremap <buffer> B И
+lnoremap <buffer> C С
+lnoremap <buffer> D В
+lnoremap <buffer> E У
+lnoremap <buffer> F А
+lnoremap <buffer> G П
+lnoremap <buffer> H Р
+lnoremap <buffer> I Ш
+lnoremap <buffer> J О
+lnoremap <buffer> K Л
+lnoremap <buffer> L Д
+lnoremap <buffer> M Ь
+lnoremap <buffer> N Т
+lnoremap <buffer> O Щ
+lnoremap <buffer> P З
+lnoremap <buffer> Q Й
+lnoremap <buffer> R К
+lnoremap <buffer> S Ы
+lnoremap <buffer> T Е
+lnoremap <buffer> U Г
+lnoremap <buffer> V М
+lnoremap <buffer> W Ц
+lnoremap <buffer> X Ч
+lnoremap <buffer> Y Н
+lnoremap <buffer> Z Я
+lnoremap <buffer> [ х
+lnoremap <buffer> ] ъ
+lnoremap <buffer> ^ :
+lnoremap <buffer> ` ё
+lnoremap <buffer> a ф
+lnoremap <buffer> b и
+lnoremap <buffer> c с
+lnoremap <buffer> d в
+lnoremap <buffer> e у
+lnoremap <buffer> f а
+lnoremap <buffer> g п
+lnoremap <buffer> h р
+lnoremap <buffer> i ш
+lnoremap <buffer> j о
+lnoremap <buffer> k л
+lnoremap <buffer> l д
+lnoremap <buffer> m ь
+lnoremap <buffer> n т
+lnoremap <buffer> o щ
+lnoremap <buffer> p з
+lnoremap <buffer> q й
+lnoremap <buffer> r к
+lnoremap <buffer> s ы
+lnoremap <buffer> t е
+lnoremap <buffer> u г
+lnoremap <buffer> v м
+lnoremap <buffer> w ц
+lnoremap <buffer> x ч
+lnoremap <buffer> y н
+lnoremap <buffer> z я
+lnoremap <buffer> { Х
+lnoremap <buffer> } Ъ
+lnoremap <buffer> ~ Ё
+iabbr <buffer> ci cin >> x;Fxs
+iabbr <buffer> coe cout << x << endl;Fxs
+iabbr <buffer> cod cout << x << ' ';Fxs
+iabbr <buffer> co cout << x;Fxs
+iabbr <buffer> #I #include <iostream>using namespace std;int main() {}O
+iabbr <buffer> fc char f() {}2k$F)i
+iabbr <buffer> fl long f() {}2k$F)i
+iabbr <buffer> fi int f() {}2k$F)i
+iabbr <buffer> fv void f() {}2k$F)i
+iabbr <buffer> {{ { <BS>}kI
+iabbr <buffer> }} { <BS>}kI
+iabbr <buffer> ifel if() {} else {}4k$F)i
+iabbr <buffer> iff if() {}2k$F)i
+iabbr <buffer> fork for(int k = 0; k < _; k++) F_s
+iabbr <buffer> forj for(int j = 0; j < _; j++) F_s
+iabbr <buffer> fori for(int i = 0; i < _; i++) F_s
+iabbr <buffer> prF printf("\n");fflush(stdout);kF\i
+iabbr <buffer> prp printf("%p\n", _);F_s
+iabbr <buffer> prfe printf("%e\n", _);F_s
+iabbr <buffer> prfg printf("%g\n", _);F_s
+iabbr <buffer> prf printf("%f\n", _);F_s
+iabbr <buffer> prs printf("%s\n", _);F_s
+iabbr <buffer> prc printf("%c\n", _);F_s
+iabbr <buffer> prx printf("%x\n", _);F_s
+iabbr <buffer> prl printf("%ld\n", _);F_s
+iabbr <buffer> pri printf("%d\n", _);F_s
+iabbr <buffer> prn printf("\n");F\i
+iabbr <buffer> prt printf("");<Left><Left><Left>
+iabbr <buffer> #m #include <math.h>
+iabbr <buffer> #l #include <stdlib.h>
+iabbr <buffer> #h #include <stdio.h>#include <stdlib.h>
+iabbr <buffer> #i #include <stdio.h>int main() {}O
+let &cpo=s:cpo_save
+unlet s:cpo_save
+setlocal keymap=russian-jcukenwin
+setlocal noarabic
+setlocal autoindent
+setlocal backupcopy=
+setlocal balloonexpr=
+setlocal nobinary
+setlocal nobreakindent
+setlocal breakindentopt=
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal cindent
+setlocal cinkeys=0{,0},0),0],:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal cursorlineopt=both
+setlocal define=^\\s*#\\s*define
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'cpp'
+setlocal filetype=cpp
+endif
+setlocal fixendofline
+set foldcolumn=1
+setlocal foldcolumn=1
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+set foldmarker=//>,//<
+setlocal foldmarker=//>,//<
+set foldmethod=marker
+setlocal foldmethod=marker
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal formatprg=
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=^\\s*#\\s*include
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},0),0],:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal lispwords=
+setlocal nolist
+setlocal listchars=
+setlocal makeencoding=
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=bin,octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=ccomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal scrolloff=-1
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal showbreak=
+setlocal sidescrolloff=-1
+setlocal signcolumn=auto
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=ru_yo,en_us
+setlocal spelloptions=
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'cpp'
+setlocal syntax=cpp
+endif
+setlocal tabstop=8
+setlocal tagcase=
+setlocal tagfunc=
+setlocal tags=
+setlocal termwinkey=
+setlocal termwinscroll=10000
+setlocal termwinsize=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal thesaurusfunc=
+setlocal noundofile
+setlocal undolevels=-123456
+setlocal varsofttabstop=
+setlocal vartabstop=
+setlocal virtualedit=
+setlocal wincolor=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+let s:l = 1 - ((0 * winheight(0) + 11) / 23)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 1
 normal! 0
+wincmd w
+argglobal
+if bufexists("storage.hpp") | buffer storage.hpp | else | edit storage.hpp | endif
+balt main.cpp
+nnoremap <buffer> \> Icin >> $a;$
+nnoremap <buffer> \< Icout << $a << endl;$
+nmap <buffer> \b \}
+nmap <buffer> \{ \}
+let s:cpo_save=&cpo
+set cpo&vim
+nnoremap <buffer> \} :s/\(\S\)\s*$/\1 /eA <BS>{ <BS>}kI
+lnoremap <buffer> " Э
+lnoremap <buffer> # №
+lnoremap <buffer> $ ;
+lnoremap <buffer> & ?
+lnoremap <buffer> ' э
+lnoremap <buffer> , б
+lnoremap <buffer> . ю
+lnoremap <buffer> / .
+lnoremap <buffer> : Ж
+lnoremap <buffer> ; ж
+lnoremap <buffer> < Б
+lnoremap <buffer> > Ю
+lnoremap <buffer> ? ,
+lnoremap <buffer> @ "
+lnoremap <buffer> A Ф
+lnoremap <buffer> B И
+lnoremap <buffer> C С
+lnoremap <buffer> D В
+lnoremap <buffer> E У
+lnoremap <buffer> F А
+lnoremap <buffer> G П
+lnoremap <buffer> H Р
+lnoremap <buffer> I Ш
+lnoremap <buffer> J О
+lnoremap <buffer> K Л
+lnoremap <buffer> L Д
+lnoremap <buffer> M Ь
+lnoremap <buffer> N Т
+lnoremap <buffer> O Щ
+lnoremap <buffer> P З
+lnoremap <buffer> Q Й
+lnoremap <buffer> R К
+lnoremap <buffer> S Ы
+lnoremap <buffer> T Е
+lnoremap <buffer> U Г
+lnoremap <buffer> V М
+lnoremap <buffer> W Ц
+lnoremap <buffer> X Ч
+lnoremap <buffer> Y Н
+lnoremap <buffer> Z Я
+lnoremap <buffer> [ х
+lnoremap <buffer> ] ъ
+lnoremap <buffer> ^ :
+lnoremap <buffer> ` ё
+lnoremap <buffer> a ф
+lnoremap <buffer> b и
+lnoremap <buffer> c с
+lnoremap <buffer> d в
+lnoremap <buffer> e у
+lnoremap <buffer> f а
+lnoremap <buffer> g п
+lnoremap <buffer> h р
+lnoremap <buffer> i ш
+lnoremap <buffer> j о
+lnoremap <buffer> k л
+lnoremap <buffer> l д
+lnoremap <buffer> m ь
+lnoremap <buffer> n т
+lnoremap <buffer> o щ
+lnoremap <buffer> p з
+lnoremap <buffer> q й
+lnoremap <buffer> r к
+lnoremap <buffer> s ы
+lnoremap <buffer> t е
+lnoremap <buffer> u г
+lnoremap <buffer> v м
+lnoremap <buffer> w ц
+lnoremap <buffer> x ч
+lnoremap <buffer> y н
+lnoremap <buffer> z я
+lnoremap <buffer> { Х
+lnoremap <buffer> } Ъ
+lnoremap <buffer> ~ Ё
+iabbr <buffer> ci cin >> x;Fxs
+iabbr <buffer> coe cout << x << endl;Fxs
+iabbr <buffer> cod cout << x << ' ';Fxs
+iabbr <buffer> co cout << x;Fxs
+iabbr <buffer> #I #include <iostream>using namespace std;int main() {}O
+iabbr <buffer> fc char f() {}2k$F)i
+iabbr <buffer> fl long f() {}2k$F)i
+iabbr <buffer> fi int f() {}2k$F)i
+iabbr <buffer> fv void f() {}2k$F)i
+iabbr <buffer> {{ { <BS>}kI
+iabbr <buffer> }} { <BS>}kI
+iabbr <buffer> ifel if() {} else {}4k$F)i
+iabbr <buffer> iff if() {}2k$F)i
+iabbr <buffer> fork for(int k = 0; k < _; k++) F_s
+iabbr <buffer> forj for(int j = 0; j < _; j++) F_s
+iabbr <buffer> fori for(int i = 0; i < _; i++) F_s
+iabbr <buffer> prF printf("\n");fflush(stdout);kF\i
+iabbr <buffer> prp printf("%p\n", _);F_s
+iabbr <buffer> prfe printf("%e\n", _);F_s
+iabbr <buffer> prfg printf("%g\n", _);F_s
+iabbr <buffer> prf printf("%f\n", _);F_s
+iabbr <buffer> prs printf("%s\n", _);F_s
+iabbr <buffer> prc printf("%c\n", _);F_s
+iabbr <buffer> prx printf("%x\n", _);F_s
+iabbr <buffer> prl printf("%ld\n", _);F_s
+iabbr <buffer> pri printf("%d\n", _);F_s
+iabbr <buffer> prn printf("\n");F\i
+iabbr <buffer> prt printf("");<Left><Left><Left>
+iabbr <buffer> #m #include <math.h>
+iabbr <buffer> #l #include <stdlib.h>
+iabbr <buffer> #h #include <stdio.h>#include <stdlib.h>
+iabbr <buffer> #i #include <stdio.h>int main() {}O
+let &cpo=s:cpo_save
+unlet s:cpo_save
+setlocal keymap=russian-jcukenwin
+setlocal noarabic
+setlocal autoindent
+setlocal backupcopy=
+setlocal balloonexpr=
+setlocal nobinary
+setlocal nobreakindent
+setlocal breakindentopt=
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal cindent
+setlocal cinkeys=0{,0},0),0],:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal cursorlineopt=both
+setlocal define=^\\s*#\\s*define
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'cpp'
+setlocal filetype=cpp
+endif
+setlocal fixendofline
+set foldcolumn=1
+setlocal foldcolumn=1
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+set foldmarker=//>,//<
+setlocal foldmarker=//>,//<
+set foldmethod=marker
+setlocal foldmethod=marker
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal formatprg=
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=^\\s*#\\s*include
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},0),0],:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal lispwords=
+setlocal nolist
+setlocal listchars=
+setlocal makeencoding=
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=bin,octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=ccomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal scrolloff=-1
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal showbreak=
+setlocal sidescrolloff=-1
+setlocal signcolumn=auto
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=ru_yo,en_us
+setlocal spelloptions=
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'cpp'
+setlocal syntax=cpp
+endif
+setlocal tabstop=8
+setlocal tagcase=
+setlocal tagfunc=
+setlocal tags=
+setlocal termwinkey=
+setlocal termwinscroll=10000
+setlocal termwinsize=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal thesaurusfunc=
+setlocal noundofile
+setlocal undolevels=-123456
+setlocal varsofttabstop=
+setlocal vartabstop=
+setlocal virtualedit=
+setlocal wincolor=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+let s:l = 27 - ((12 * winheight(0) + 11) / 23)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 27
+normal! 0
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 97 + 97) / 195)
+exe '2resize ' . ((&lines * 23 + 24) / 49)
+exe 'vert 2resize ' . ((&columns * 97 + 97) / 195)
+exe '3resize ' . ((&lines * 23 + 24) / 49)
+exe 'vert 3resize ' . ((&columns * 97 + 97) / 195)
 tabnext 1
-badd +0 ~/cpp/vec.cpp
-badd +67 ~/.vimrc
+badd +0 ~/cpp/vec.hpp
+badd +0 storage.hpp
+badd +0 main.cpp
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20 shortmess=filnxtToOSI
+let &winminheight = s:save_winminheight
+let &winminwidth = s:save_winminwidth
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
