@@ -164,8 +164,36 @@ int main() {
     
     assert(v18[0].value == 100);
 
-    const Storage<float, int> st;
+    const Storage<float, int> st{10};
+    for(int i = 0; i < 10; i++) {
+        const_cast<float&>(st[i]) = i;
+    }
+
+    for(Storage<float, int>::iterator it = st.cbegin_(); it != st.cend_(); ++it) {
+        typename Storage<float, int>::iterator::value_type v = *it;
+        cout << v << ' ';
+    }
+    cout << endl;
+
+    for(auto it = st.cbegin_(); it != st.cend_(); ++it) {
+        cout << *it << ' ';
+    } 
+    cout << endl;
+
+    cout << &*st.cbegin_() << ' ' << &*++st.cbegin_() << ' ' << &*st.cend_() << endl;
+
 //    const_cast<float&>(st[0]) = 12;
     if(!st) cout << "st" << endl;
 
+    Storage<float, int> st1{10};
+    std::uninitialized_copy(st.cbegin_(), st.cend_(), st1.begin_());
+
+    for(auto it = st1.begin_(); it != st1.end_(); ++it) {
+        cout << *it << ' ';
+    }
+    cout << endl;
+
+    v16.print("v16");
+    v17.assign(v16.begin(), v16.end());
+    v17.print("v17");
 }

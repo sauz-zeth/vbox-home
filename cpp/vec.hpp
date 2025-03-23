@@ -29,7 +29,7 @@ class Vec {
     Storage<T, U> coords;
     static constexpr U DIM_DEFAULT = 2;
 
-    void recap(U c);
+    void realloc_safe(U c);
 
 public:
 
@@ -132,6 +132,8 @@ public:
     void resize(U s);
     void reserve(U c);
     void shrink();
+    void clear();
+    void assign(T* first, T* last);
 
     template<typename V>
     void add(const V x);
@@ -214,7 +216,8 @@ inline void Vec<T, U>::clear() {
     dim = 0;
 }
 
-void assign(T* first, T* last) {
+template<typename T, typename U>
+inline void Vec<T, U>::assign(T* first, T* last) {
     clear();
     reserve(last - first);
     std::uninitialized_copy(first, last, begin());
@@ -235,7 +238,7 @@ inline void Vec<T, U>::resize(U s) {
 }
 
 template<typename T, typename U>
-inline void Vec<T, U>::recap(U c) {
+inline void Vec<T, U>::realloc_safe(U c) {
     if(c < dim) return;
         
     Storage<T, U> coords1{c};
@@ -250,12 +253,12 @@ template<typename T, typename U>
 inline void Vec<T, U>::reserve(U c) {
     if(c <= capacity()) return;
 
-    recap(c);
+    realloc_safe(c);
 }
 
 template<typename T, typename U>
 inline void Vec<T, U>::shrink() {
-    recap(dim);
+    realloc_safe(dim);
 }
 
 template<typename T, typename U>

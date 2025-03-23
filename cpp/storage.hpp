@@ -40,12 +40,56 @@ public:
         st.cap = 0;
     }
 
+    ~Storage() {
+        cout << "Storage destructed at " << this << endl;
+
+        al.deallocate(data, cap);
+    }
+
     const T& operator[](U i) const {
         return at(i);
     }
 
     T& operator[](U i) {
         return at(i);
+    }
+
+    class iterator {
+        mutable T* pos;
+    public:
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+
+        explicit iterator(T* ppos) : pos{ppos} {}
+        T& operator*() {return *pos;}
+        const T& operator*() const {return *pos;}
+        iterator& operator++() {pos++; return *this;}
+        const iterator& operator++() const {pos++; return *this;}
+        iterator operator++(int) {iterator it = *this; ++(*this); return it;}
+        const iterator operator++(int) const {iterator it = *this; ++(*this); return it;}
+        bool operator==(iterator it) const {return pos == it.pos;}
+        bool operator!=(iterator it) const {return !(*this == it);}
+    };
+    //TODO: оператор- begin_ -> begin ...
+    //TODO: range for в main
+
+    iterator begin_() {
+        return iterator{data};
+    }
+
+    iterator end_() {
+        return iterator{data + cap};
+    }
+
+    const iterator cbegin_() const {
+        return iterator{data};
+    }
+
+    const iterator cend_() const {
+        return iterator{data + cap};
     }
 
     T* begin() {
@@ -62,12 +106,6 @@ public:
 
     const T* cend() const {
         return data + cap;
-    }
-
-    ~Storage() {
-        cout << "Storage destructed at " << this << endl;
-
-        al.deallocate(data, cap);
     }
 
     operator bool() const {

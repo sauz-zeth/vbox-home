@@ -2,13 +2,32 @@
 
 using namespace std;
 
-template<typename T = int, typename U = int, int N = 123>     //template class
+template<typename T = int, typename U = int, int N = 123>     //template class (primary template)
 struct Point {
     T x, y, z;
     U index {N};
 
     void print();
 
+};
+
+template<typename T>     //template class (partial specialization)
+struct Point<T*> {
+    T *px, *py, *pz;
+
+    void print();
+
+};
+
+template<>     //template class (complete specialization)
+struct Point<char> {
+    char x;
+
+    void print() {
+        cout << this << " {\n";
+        cout << "\tx: " << (int)x << endl;
+        cout << "}\n";
+    }
 };
 
 template<typename T, typename U, int N>     //template method
@@ -19,10 +38,36 @@ void Point<T, U, N>::print() {
     cout << "}\n";
 }
 
+template<typename T>     //template method
+void Point<T*>::print() {
+    cout << this << " {\n";
+    cout << "\tx: " << *px << "\n\ty: " << *py << "\n\tz: " << *pz << endl;
+    cout << "}\n";
+}
+
+//template<>     //template method
+//void Point<char>::print() {
+//    cout << this << " {\n";
+//    cout << "\tx: " << x << endl;
+//    cout << "}\n";
+//}
+
 template<typename T>    //template function
 void f(T n) {
     cout << sizeof(T) << endl;
     cout << n << endl;
+}
+
+template<typename T>    //template function
+void f(T* p) {
+    cout << "pointer: " << sizeof(T) << endl;
+    cout << p << endl;
+}
+
+//template<>    //template function
+void f(double p) {
+    cout << "double: " << sizeof(double) << endl;
+    cout << p << endl;
 }
 
 template<int N>     //template alias
@@ -58,4 +103,12 @@ int main() {
     short n {123};
     f<>(n);     // FTAD
     f(n);     // FTAD
+    int *pl = &l;
+    f(pl);
+    f(123.);
+
+    Point<int*> pp {pl, pl, pl};
+    Point<char> pc {(char)12};
+    pp.print();
+    pc.print();
 }
