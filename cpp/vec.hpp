@@ -79,12 +79,6 @@ public:
 
 //    Vec(const Vec& v) : Vec{v.dim} {  // Делегирование конструктора
 
-//    TODO: разделить аллокацию и инициализацию массива coords
-
-//    TODO: использовать placement new инициализация отдельных элементов массива,
-//          (сейчас все сначала инициализируется дефолтными значениями, а затем
-//          через присваивание копируются новые значения T, это неэффективно)
-//
     Vec(const Vec& v) : dim{v.dim}, coords{v.dim} {
         cout << "Vec copy constructed at " << this << " from " << &v << endl;
 
@@ -213,6 +207,19 @@ public:
 // применить clear к имеющимся операциям
 // TODO: .assign(T* first, T* last) copy assignment из диапазона [first, last)
 //> Vec<T, U>::METHODS
+
+template<typename T, typename U>
+inline void Vec<T, U>::clear() {
+    std::destroy(begin(), end());
+    dim = 0;
+}
+
+void assign(T* first, T* last) {
+    clear();
+    reserve(last - first);
+    std::uninitialized_copy(first, last, begin());
+    dim = last - first;
+}
 
 template<typename T, typename U>
 inline void Vec<T, U>::resize(U s) {
