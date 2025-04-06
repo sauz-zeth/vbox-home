@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
-#include "vec.hpp"
 #include "number.hpp"
+#include "vec.hpp"
 
 int main() {
     Vec<float, int> v1{3};
@@ -170,7 +170,8 @@ int main() {
     }
 
     for(Storage<float, int>::iterator it = st.cbegin(); it != st.cend(); ++it) {
-        typename Storage<float, int>::iterator::value_type v = *it;
+//        typename Storage<float, int>::iterator::value_type v = *it;
+        typename std::iterator_traits<Storage<float, int>::iterator>::value_type v = *it;
         cout << v << ' ';
     }
     cout << endl;
@@ -208,4 +209,20 @@ int main() {
     std::ptrdiff_t dist = it2 - it1;
 
     cout << dist << endl;
+
+    Storage<Number> st2{10};
+//    new(&*st2.begin()) Number{123};
+    new(&st2[1]) Number{1111};
+    std::uninitialized_fill(st2.begin(), st2.begin() + 1, Number{123});
+    auto st2_it1 = st2.begin();
+    cout << st2[0].value << endl;
+    cout << st2_it1[0].value << endl;
+    cout << st2_it1->value << endl;
+
+    cout << st2[1].value << endl;
+    auto st2_it2 = st2.begin() + 1;
+    cout << st2_it2->value << endl;
+    cout << (st2_it2 >= st2_it1) << endl;
 }
+//TODO: для storage метод .emplace(iterator pos, const T& value)
+//TODO: для vec метод .push_back(const T& value)

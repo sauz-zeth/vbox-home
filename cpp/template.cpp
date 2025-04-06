@@ -23,11 +23,12 @@ template<>     //template class (complete specialization)
 struct Point<char> {
     char x;
 
-    void print() {
-        cout << this << " {\n";
-        cout << "\tx: " << (int)x << endl;
-        cout << "}\n";
-    }
+    void print();
+//    void print() {
+//        cout << this << " {\n";
+//        cout << "\tx: " << (int)x << endl;
+//        cout << "}\n";
+//    }
 };
 
 template<typename T, typename U, int N>     //template method
@@ -45,12 +46,11 @@ void Point<T*>::print() {
     cout << "}\n";
 }
 
-//template<>     //template method
-//void Point<char>::print() {
-//    cout << this << " {\n";
-//    cout << "\tx: " << x << endl;
-//    cout << "}\n";
-//}
+void Point<char>::print() {
+    cout << this << " {\n";
+    cout << "\tx: " << (int)x << endl;
+    cout << "}\n";
+}
 
 template<typename T>    //template function
 void f(T n) {

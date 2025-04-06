@@ -25,6 +25,7 @@ using std::endl;
 
 template<typename T = float, typename U = size_t>
 class Vec {
+    using iterator = typename Storage<T, U>::iterator;
     U dim;
     Storage<T, U> coords;
     static constexpr U DIM_DEFAULT = 2;
@@ -49,20 +50,26 @@ public:
         return coords[i];
     }
 
-    T* begin() {
-        return coords.begin_();
+    iterator begin() {
+        return coords.begin();
     }
 
-    T* end() {
-        return coords.begin_() + dim;
+    iterator end() {
+        iterator it = coords.begin();
+        std::advance(it, dim);
+        
+        return it;
     }
 
-    const T* cbegin() const {
-        return coords.cbegin_();
+    const iterator cbegin() const {
+        return coords.cbegin();
     }
 
-    const T* cend() const {
-        return coords.cbegin_() + dim;
+    const iterator cend() const {
+        const iterator it = coords.cbegin();
+        std::advance(it, dim);
+
+        return it;
     }
     
 
@@ -133,7 +140,7 @@ public:
     void reserve(U c);
     void shrink();
     void clear();
-    void assign(T* first, T* last);
+    void assign(iterator first, iterator last);
 
     template<typename V>
     void add(const V x);
@@ -214,7 +221,7 @@ inline void Vec<T, U>::clear() {
 }
 
 template<typename T, typename U>
-inline void Vec<T, U>::assign(T* first, T* last) {
+inline void Vec<T, U>::assign(iterator first, iterator last) {
     clear();
     reserve(last - first);
     std::uninitialized_copy(first, last, begin());
@@ -228,7 +235,7 @@ inline void Vec<T, U>::resize(U s) {
     if(s < dim) {
         std::destroy(begin() + s, end());
     } else {
-        std::fill(begin() + dim, begin() + s, T{});
+        std::uninitialized_fill(begin() + dim, begin() + s, T{});
     }
 
     dim = s;

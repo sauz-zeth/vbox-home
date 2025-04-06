@@ -215,7 +215,7 @@ inline void Vec<T, U>::resize(U s) {
     }
     else {
         for(U i = dim; i < s; i++) {
-            coords[i] = T{};  
+            new(&coords[i]) T{};
         }
         dim = s;
     }
