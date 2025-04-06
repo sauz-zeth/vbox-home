@@ -50,19 +50,19 @@ public:
     }
 
     T* begin() {
-        return coords.begin();
+        return coords.begin_();
     }
 
     T* end() {
-        return coords.begin() + dim;
+        return coords.begin_() + dim;
     }
 
     const T* cbegin() const {
-        return coords.cbegin();
+        return coords.cbegin_();
     }
 
     const T* cend() const {
-        return coords.cbegin() + dim;
+        return coords.cbegin_() + dim;
     }
     
 
@@ -205,9 +205,6 @@ public:
     }
 };
 
-// TODO: .clear очишает вектор не меняя хранилище
-// применить clear к имеющимся операциям
-// TODO: .assign(T* first, T* last) copy assignment из диапазона [first, last)
 //> Vec<T, U>::METHODS
 
 template<typename T, typename U>

@@ -72,39 +72,40 @@ public:
         const iterator operator++(int) const {iterator it = *this; ++(*this); return it;}
         bool operator==(iterator it) const {return pos == it.pos;}
         bool operator!=(iterator it) const {return !(*this == it);}
+        difference_type operator-(const iterator& other) const { return pos - other.pos; }
     };
     //TODO: оператор- begin_ -> begin ...
     //TODO: range for в main
 
-    iterator begin_() {
+    iterator begin() {
         return iterator{data};
     }
 
-    iterator end_() {
+    iterator end() {
         return iterator{data + cap};
     }
 
-    const iterator cbegin_() const {
+    const iterator cbegin() const {
         return iterator{data};
     }
 
-    const iterator cend_() const {
+    const iterator cend() const {
         return iterator{data + cap};
     }
 
-    T* begin() {
+    T* begin_() {
         return data;
     }
 
-    T* end() {
+    T* end_() {
         return data + cap;
     }
 
-    const T* cbegin() const {
+    const T* cbegin_() const {
         return data;
     }
 
-    const T* cend() const {
+    const T* cend_() const {
         return data + cap;
     }
 

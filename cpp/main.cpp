@@ -169,24 +169,24 @@ int main() {
         const_cast<float&>(st[i]) = i;
     }
 
-    for(Storage<float, int>::iterator it = st.cbegin_(); it != st.cend_(); ++it) {
+    for(Storage<float, int>::iterator it = st.cbegin(); it != st.cend(); ++it) {
         typename Storage<float, int>::iterator::value_type v = *it;
         cout << v << ' ';
     }
     cout << endl;
 
-    for(auto it = st.cbegin_(); it != st.cend_(); ++it) {
+    for(auto it = st.cbegin(); it != st.cend(); ++it) {
         cout << *it << ' ';
     } 
     cout << endl;
 
-    cout << &*st.cbegin_() << ' ' << &*++st.cbegin_() << ' ' << &*st.cend_() << endl;
+    cout << &*st.cbegin() << ' ' << &*++st.cbegin() << ' ' << &*st.cend() << endl;
 
-//    const_cast<float&>(st[0]) = 12;
+   const_cast<float&>(st[0]) = 12;
     if(!st) cout << "st" << endl;
 
     Storage<float, int> st1{10};
-    std::uninitialized_copy(st.cbegin_(), st.cend_(), st1.begin_());
+    std::uninitialized_copy(st.cbegin(), st.cend(), st1.begin());
 
     for(auto it = st1.begin_(); it != st1.end_(); ++it) {
         cout << *it << ' ';
@@ -196,4 +196,16 @@ int main() {
     v16.print("v16");
     v17.assign(v16.begin(), v16.end());
     v17.print("v17");
+
+    for (auto& it : st1) {
+        cout << it << ' ';
+    }
+    cout << endl;
+
+    auto it1 = st1.begin();
+    auto it2 = st1.end();
+
+    std::ptrdiff_t dist = it2 - it1;
+
+    cout << dist << endl;
 }
