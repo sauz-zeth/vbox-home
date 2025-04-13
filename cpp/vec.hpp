@@ -141,6 +141,8 @@ public:
     void shrink();
     void clear();
     void assign(iterator first, iterator last);
+    void push_back(const T& value);
+    void push_back(T&& value);
 
     template<typename V>
     void add(const V x);
@@ -400,6 +402,33 @@ void Vec<T, U>::operator*=(const V x) {
 }
 
 //<
+
+//> Vec<T, U>::push_back
+
+template<typename T, typename U>
+inline void Vec<T, U>::push_back(const T& value) {
+    if(dim == capacity()) {
+        reserve(capacity() == 0 ? 1 : capacity() * 2);
+    }
+
+    coords.emplace(begin() + dim, value);
+    ++dim;
+}
+
+template<typename T, typename U>
+inline void Vec<T, U>::push_back(T&& value) {
+    if(dim == capacity()) {
+        reserve(capacity() == 0 ? 1 : capacity() * 2);
+    }
+
+    coords.emplace(begin() + dim, std::move(value));
+    ++dim;
+}
+
+
+
+//<
+
 //<
 //> Vec<T, U> HELPERS
 

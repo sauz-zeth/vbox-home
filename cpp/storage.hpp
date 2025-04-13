@@ -54,6 +54,7 @@ public:
         return at(i);
     }
 
+
     class iterator {
         mutable T* ptr;
     public:
@@ -151,12 +152,25 @@ public:
 
     template<typename TT, typename UU>
     friend void swap(Storage<TT, UU>& st1, Storage<TT, UU>& st2);
+
+    void emplace(iterator pos, const T& value);
+    void emplace(iterator pos, T&& value);
 };
 
 template<typename T, typename U>
 void swap(Storage<T, U>& st1, Storage<T, U>& st2) {
     std::swap(st1.data, st2.data);
     std::swap(st1.cap, st2.cap);
+}
+
+template<typename T, typename U>
+void Storage<T, U>::emplace(iterator pos, const T& value) {
+    new(&(*pos)) T{value};
+}
+
+template<typename T, typename U>
+void Storage<T, U>::emplace(iterator pos, T&& value) {
+    new(&(*pos)) T{std::move(value)};
 }
 
 /*

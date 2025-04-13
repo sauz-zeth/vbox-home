@@ -223,6 +223,17 @@ int main() {
     auto st2_it2 = st2.begin() + 1;
     cout << st2_it2->value << endl;
     cout << (st2_it2 >= st2_it1) << endl;
+
+    Vec<float, int> v20{};
+    v20.push_back(10);
+    v20.print("v20");
+    v20.push_back(20);
+    v20.print("v20");
+    v20.push_back(30);
+    v20.print("v20");
+    v20.push_back(40);
+    v20.print("v20");
+
 }
 //TODO: для storage метод .emplace(iterator pos, const T& value)
 //TODO: для vec метод .push_back(const T& value)
