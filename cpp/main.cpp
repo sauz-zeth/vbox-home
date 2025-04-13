@@ -189,7 +189,7 @@ int main() {
     Storage<float, int> st1{10};
     std::uninitialized_copy(st.cbegin(), st.cend(), st1.begin());
 
-    for(auto it = st1.begin_(); it != st1.end_(); ++it) {
+    for(auto it = st1.begin(); it != st1.end(); ++it) {
         cout << *it << ' ';
     }
     cout << endl;
@@ -197,6 +197,10 @@ int main() {
     v16.print("v16");
     v17.assign(v16.begin(), v16.end());
     v17.print("v17");
+
+    float a[] = {1, 2, 44, 56};
+
+    v17.assign(a, a + 4);
 
     for (auto& it : st1) {
         cout << it << ' ';
@@ -234,6 +238,7 @@ int main() {
     v20.push_back(40);
     v20.print("v20");
 
+    int i = 10;
+    const int *p = &i;
+    p++;
 }
-//TODO: для storage метод .emplace(iterator pos, const T& value)
-//TODO: для vec метод .push_back(const T& value)

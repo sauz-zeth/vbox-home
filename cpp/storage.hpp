@@ -130,22 +130,6 @@ public:
         return iterator{data + cap};
     }
 
-    T* begin_() {
-        return data;
-    }
-
-    T* end_() {
-        return data + cap;
-    }
-
-    const T* cbegin_() const {
-        return data;
-    }
-
-    const T* cend_() const {
-        return data + cap;
-    }
-
     operator bool() const {
         return bool(cap);
     }
@@ -153,8 +137,8 @@ public:
     template<typename TT, typename UU>
     friend void swap(Storage<TT, UU>& st1, Storage<TT, UU>& st2);
 
-    void emplace(iterator pos, const T& value);
-    void emplace(iterator pos, T&& value);
+    void copy_construct_at(const iterator pos, const T& value);
+    void copy_construct_at(const iterator pos, T&& value);
 };
 
 template<typename T, typename U>
@@ -164,14 +148,15 @@ void swap(Storage<T, U>& st1, Storage<T, U>& st2) {
 }
 
 template<typename T, typename U>
-void Storage<T, U>::emplace(iterator pos, const T& value) {
-    new(&(*pos)) T{value};
+void Storage<T, U>::copy_construct_at(const iterator pos, const T& value) {
+    new((void*)&*pos) T{value};
 }
 
 template<typename T, typename U>
-void Storage<T, U>::emplace(iterator pos, T&& value) {
-    new(&(*pos)) T{std::move(value)};
+void Storage<T, U>::copy_construct_at(const iterator pos, T&& value) {
+    new((void*)&*pos) T{std::move(value)};
 }
+
 
 /*
 template<>

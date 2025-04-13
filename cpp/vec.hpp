@@ -140,7 +140,10 @@ public:
     void reserve(U c);
     void shrink();
     void clear();
-    void assign(iterator first, iterator last);
+
+    template <typename It>
+    void assign(It first, It last);
+
     void push_back(const T& value);
     void push_back(T&& value);
 
@@ -223,7 +226,8 @@ inline void Vec<T, U>::clear() {
 }
 
 template<typename T, typename U>
-inline void Vec<T, U>::assign(iterator first, iterator last) {
+template<typename It>
+inline void Vec<T, U>::assign(It first, It last) {
     clear();
     reserve(last - first);
     std::uninitialized_copy(first, last, begin());
@@ -407,21 +411,25 @@ void Vec<T, U>::operator*=(const V x) {
 
 template<typename T, typename U>
 inline void Vec<T, U>::push_back(const T& value) {
-    if(dim == capacity()) {
-        reserve(capacity() == 0 ? 1 : capacity() * 2);
-    }
+    reserve(dim + 1);
 
-    coords.emplace(begin() + dim, value);
+    coords.copy_construct_at(cbegin() + dim, value);
     ++dim;
 }
 
+//TODO: выразить push_back через insert
+//TODO: .insert(const iterator pos, const T& value)
+//TODO: .insert(const iterator pos, T&& value)
+//TODO: .insert(const iterator pos, It first, It last)
+// insert должен вставлять и отодвигать
+//
+// TODO: .assign(U n, const T& value)
+
 template<typename T, typename U>
 inline void Vec<T, U>::push_back(T&& value) {
-    if(dim == capacity()) {
-        reserve(capacity() == 0 ? 1 : capacity() * 2);
-    }
+    reserve(dim + 1);
 
-    coords.emplace(begin() + dim, std::move(value));
+    coords.copy_construct_at(cbegin() + dim, std::move(value));
     ++dim;
 }
 
