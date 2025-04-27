@@ -244,4 +244,8 @@ int main() {
     
     cout << sizeof(typename Storage<float, int>::iterator) << endl;
     cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
+
+    Vec v21{3};
+    v21.insert(v21.begin() + 2, 1);
+    v21.print("V21");
 }
