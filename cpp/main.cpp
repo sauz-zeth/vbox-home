@@ -183,7 +183,7 @@ int main() {
 
     cout << &*st.cbegin() << ' ' << &*++st.cbegin() << ' ' << &*st.cend() << endl;
 
-   const_cast<float&>(st[0]) = 12;
+    const_cast<float&>(st[0]) = 12;
     if(!st) cout << "st" << endl;
 
     Storage<float, int> st1{10};
@@ -241,4 +241,7 @@ int main() {
     int i = 10;
     const int *p = &i;
     p++;
+    
+    cout << sizeof(typename Storage<float, int>::iterator) << endl;
+    cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
 }

@@ -111,8 +111,6 @@ public:
         bool operator>=(iterator it) const {return !(*this < it);}
 
     };
-    //TODO: оператор- begin_ -> begin ...
-    //TODO: range for в main
 
     iterator begin() {
         return iterator{data};
@@ -137,8 +135,14 @@ public:
     template<typename TT, typename UU>
     friend void swap(Storage<TT, UU>& st1, Storage<TT, UU>& st2);
 
+    template<typename It> 
+    void realloc(U c, It first, It last);
+
     void copy_construct_at(const iterator pos, const T& value);
-    void copy_construct_at(const iterator pos, T&& value);
+    void move_construct_at(const iterator pos, T&& value);
+
+    template<typename It>
+    void move_construct(It first, It last, It d_first);
 };
 
 template<typename T, typename U>
@@ -148,15 +152,35 @@ void swap(Storage<T, U>& st1, Storage<T, U>& st2) {
 }
 
 template<typename T, typename U>
+template<typename It>
+void Storage<T, U>::realloc(U c, It first, It last) {
+    Storage<T, U> st1{c};
+    
+    std::uninitialized_move(first, last, st1.begin());
+    std::destroy(first, last);
+
+    swap(*this, st1);
+}
+
+template<typename T, typename U>
 void Storage<T, U>::copy_construct_at(const iterator pos, const T& value) {
     new((void*)&*pos) T{value};
 }
 
 template<typename T, typename U>
-void Storage<T, U>::copy_construct_at(const iterator pos, T&& value) {
+void Storage<T, U>::move_construct_at(const iterator pos, T&& value) {
     new((void*)&*pos) T{std::move(value)};
 }
 
+template<typename T, typename U>
+template<typename It>
+void Storage<T, U>::move_construct(It first, It last, It d_first) {
+    if(d_first < first) {
+        for(; first != last; ++first, ++d_first) {
+            move_construct_at(d_first, *first);
+        }
+    }
+}
 
 /*
 template<>
