@@ -4,6 +4,7 @@
 
 using std::cout;
 using std::endl;
+using std::destroy_at;
 
 template<typename T = float, typename U = size_t>
 class Storage {
@@ -174,10 +175,18 @@ void Storage<T, U>::move_construct(It first, It last, It d_first) {
     if(d_first < first) {
         for(; first != last; ++first, ++d_first) {
             construct_at(d_first, std::move(*first));
-            //TODO: std::destroy_at
+            std::destroy_at(&*first);
+        }
+    } else {
+        auto diff = last - first;
+        It d_last = d_first + diff;
+        for(; first != last; --last, --d_last) {
+            construct_at(d_last, std::move(*last));
+            std::destroy_at(&*last);
         }
     }
 }
+
 
 /*
 template<>

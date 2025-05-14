@@ -243,6 +243,13 @@ inline void Vec<T, U>::assign(It first, It last) {
 }
 
 template<typename T, typename U>
+inline void Vec<T, U>::assign(U n, T& value) {
+    reserve(n);
+    std::uninitialized_fill(begin(), begin() + n, value);
+    dim = n;
+}
+
+template<typename T, typename U>
 inline void Vec<T, U>::resize(U s) {
     reserve(s);
 
@@ -413,39 +420,36 @@ void Vec<T, U>::operator*=(const V x) {
 //> Vec<T, U>::insert
 
 
-//TODO: выразить push_back через insert
-//TODO: .insert(const iterator pos, const T& value)
-//TODO: .insert(const iterator pos, T&& value)
-//TODO: .insert(const iterator pos, It first, It last)
-// insert должен вставлять и отодвигать
-//
-// TODO: .assign(U n, const T& value)
-
 template<typename T, typename U>
 inline void Vec<T, U>::insert(const iterator pos, const T& value) {
     reserve(dim + 1);
 
-    move_construct(pos, end(), pos + 1);
+    coords.move_construct(pos, end(), pos + 1);
+    coords.construct_at(pos, value);
 }
 
 template<typename T, typename U>
 inline void Vec<T, U>::insert(const iterator pos, T&& value) {
-//    reserve(pos);
-//      TODO: 
-//    coords.copy_construct_at(*pos, std::move(value));
-//    dim = ? (pos > dim) : pos : dim;
+    reserve(dim + 1);
+
+    // coords.copy_construct_at(*pos, std::move(value));
+    coords.move_construct(pos, end(), pos + 1);
+    coords.construct_at(pos, std::move(value));
 }
 
 template<typename T, typename U>
 template<typename It>
 inline void Vec<T, U>::insert(const iterator pos, It first, It last) {
-//    for(auto it = first; it != last; ++it) {
-//          TODO:
-//        reserve(pos + it);
-//
-//        coords.copy_construct_at(pos + it, it);
-//        dim = ? (pos + it > dim) : pos + it : dim;
-//    }
+
+    auto size = last - first;
+    reserve(dim + size);
+    coords.move_construct(pos, end(), pos + size);
+    // coords.copy_construct_at(pos + it, it);
+
+    for(auto it = first; it != last; ++it) {
+        coords.construct_at(pos + it, *it);
+        
+    }
 }
 
 //<
@@ -454,15 +458,13 @@ inline void Vec<T, U>::insert(const iterator pos, It first, It last) {
 
 template<typename T, typename U>
 inline void Vec<T, U>::push_back(const T& value) {
-//    insert(it.cend(), value);
-//    TODO:
+    insert(cend(), value);
 }
 
 
 template<typename T, typename U>
 inline void Vec<T, U>::push_back(T&& value) {
-//    insert(it.cend(), std::move(value));
-//    TODO:
+    insert(cend(), std::move(value));
 }
 
 //TODO: выразить push_back через insert
@@ -470,19 +472,7 @@ inline void Vec<T, U>::push_back(T&& value) {
 //TODO: .insert(const iterator pos, T&& value)
 //TODO: .insert(const iterator pos, It first, It last)
 // insert должен вставлять и отодвигать
-//
 // TODO: .assign(U n, const T& value)
-//<
-
-//> Vec<T, U>::assign
-
-template<typename T, typename U>
-inline void Vec<T, U>::assign(U n, T& value) {
-    reserve(n);
-    std::uninitialized_fill(begin(), begin() + n, value);
-    dim = n;
-    //TODO: расположить рядом с другим assign
-}
 
 //<
 

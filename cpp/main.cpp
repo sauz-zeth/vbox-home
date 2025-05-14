@@ -248,4 +248,10 @@ int main() {
     Vec v21{3};
     v21.insert(v21.begin() + 2, 1);
     v21.print("V21");
+
+    v21.push_back(21);
+    v21.print("v21");
+
+    v21.push_back(111);
+    v21.print("v21");
 }
