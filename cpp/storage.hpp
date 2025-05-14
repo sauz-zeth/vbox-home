@@ -139,8 +139,14 @@ public:
     template<typename It> 
     void realloc(U c, It first, It last);
 
-    template<typename TT>
-    void construct_at(const iterator pos, TT&& value);
+    template<typename It, typename TT>
+    void construct_at(const It pos, TT&& value);
+
+    template<typename It>
+    void move_construct_forward(It first, It last, It d_first);
+
+    template<typename It>
+    void move_construct_backward(It first, It last, It d_last);
 
     template<typename It>
     void move_construct(It first, It last, It d_first);
@@ -164,26 +170,40 @@ void Storage<T, U>::realloc(U c, It first, It last) {
 }
 
 template<typename T, typename U>
-template<typename TT>
-void Storage<T, U>::construct_at(const iterator pos, TT&& value) {
+template<typename It, typename TT>
+void Storage<T, U>::construct_at(const It pos, TT&& value) {
+    cout << "value: " << value << endl;
     new((void*)&*pos) T{std::forward<TT>(value)};
+}
+
+template<typename T, typename U>
+template<typename It>
+void Storage<T, U>::move_construct_forward(It first, It last, It d_first) {
+    for(; first != last; ++first, ++d_first) {
+        construct_at(d_first, std::move(*first));
+        std::destroy_at(&*first);
+    }
+}
+
+template<typename T, typename U>
+template<typename It>
+void Storage<T, U>::move_construct_backward(It first, It last, It d_last) {
+    for(; first != last;) {
+        construct_at(--d_last, std::move(*--last));
+        std::destroy_at(&*last);
+    }
 }
 
 template<typename T, typename U>
 template<typename It>
 void Storage<T, U>::move_construct(It first, It last, It d_first) {
     if(d_first < first) {
-        for(; first != last; ++first, ++d_first) {
-            construct_at(d_first, std::move(*first));
-            std::destroy_at(&*first);
-        }
-    } else {
+        move_construct_forward(first, last, d_first);
+    } 
+    else if (d_first > first) {
         auto diff = last - first;
         It d_last = d_first + diff;
-        for(; first != last; --last, --d_last) {
-            construct_at(d_last, std::move(*last));
-            std::destroy_at(&*last);
-        }
+        move_construct_backward(first, last, d_last);
     }
 }
 

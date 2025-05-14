@@ -423,34 +423,41 @@ void Vec<T, U>::operator*=(const V x) {
 template<typename T, typename U>
 inline void Vec<T, U>::insert(const iterator pos, const T& value) {
     reserve(dim + 1);
+    ++dim;
 
-    coords.move_construct(pos, end(), pos + 1);
-    coords.construct_at(pos, value);
+    if(pos < end()) {
+        coords.move_construct(pos, end(), pos + 1);
+    }
+    coords.construct_at(pos < end() ? pos : end(), value);
+
 }
 
 template<typename T, typename U>
 inline void Vec<T, U>::insert(const iterator pos, T&& value) {
     reserve(dim + 1);
+    ++dim;
 
-    // coords.copy_construct_at(*pos, std::move(value));
-    coords.move_construct(pos, end(), pos + 1);
-    coords.construct_at(pos, std::move(value));
-}
-
-template<typename T, typename U>
-template<typename It>
-inline void Vec<T, U>::insert(const iterator pos, It first, It last) {
-
-    auto size = last - first;
-    reserve(dim + size);
-    coords.move_construct(pos, end(), pos + size);
-    // coords.copy_construct_at(pos + it, it);
-
-    for(auto it = first; it != last; ++it) {
-        coords.construct_at(pos + it, *it);
-        
+    if(pos < end()) {
+        cout << "diff: " << end() - pos << endl;
+        coords.move_construct(pos, end(), pos + 1);
     }
+    coords.construct_at(pos < end() ? pos : end(), std::move(value));
 }
+//TODO: исправить ошибку и сделать std:forward для insert
+
+//template<typename T, typename U>
+//template<typename It>
+//inline void Vec<T, U>::insert(const iterator pos, It first, It last) {
+//
+//    auto size = last - first;
+//    reserve(dim + size);
+//    coords.move_construct(pos, end(), pos + size);
+//
+//    for(auto it = first; it != last; ++it) {
+//        coords.construct_at(pos + it, *it);
+//        
+//    }
+//}
 
 //<
 

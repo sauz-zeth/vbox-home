@@ -15,5 +15,8 @@ $(info )
 run: $(TARGET) 
 	./$<
 
+debug: $(TARGET)
+	gdb -q $<
+
 $(TARGET): $(SRC) Makefile
 	$(CC) $(CXXFLAGS) $@.cpp $(LDLIBS) -o $@

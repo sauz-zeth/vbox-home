@@ -231,12 +231,12 @@ int main() {
     Vec<float, int> v20{};
     v20.push_back(10);
     v20.print("v20");
-    v20.push_back(20);
-    v20.print("v20");
-    v20.push_back(30);
-    v20.print("v20");
-    v20.push_back(40);
-    v20.print("v20");
+//    v20.push_back(20);
+//    v20.print("v20");
+//    v20.push_back(30);
+//    v20.print("v20");
+//    v20.push_back(40);
+//    v20.print("v20");
 
     int i = 10;
     const int *p = &i;
@@ -246,12 +246,12 @@ int main() {
     cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
 
     Vec v21{3};
-    v21.insert(v21.begin() + 2, 1);
-    v21.print("V21");
-
-    v21.push_back(21);
-    v21.print("v21");
-
-    v21.push_back(111);
-    v21.print("v21");
+//    v21.insert(v21.begin() + 2, 1);
+//    v21.print("V21");
+//
+//    v21.push_back(21);
+//    v21.print("v21");
+//
+//    v21.push_back(111);
+//    v21.print("v21");
 }
