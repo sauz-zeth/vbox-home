@@ -147,12 +147,13 @@ public:
     void assign(U n, T& value);
 
     template<typename TT>
-    void insert(iterator pos, TT&& value);
+    void insert(const iterator pos, TT&& value);
 
     template<typename It>
     void insert(iterator pos, It first, It last);
 
-    void push_back(const T& value);
+    template<typename TT>
+    void push_back(TT&& value);
 
     template<typename V>
     void add(const V x);
@@ -421,23 +422,17 @@ void Vec<T, U>::operator*=(const V x) {
 
 template<typename T, typename U>
 template<typename TT>
-inline void Vec<T, U>::insert(iterator pos, TT&& value) {
-    cout << "insert(const iterator pos, T&& value)" << endl;
-    cout << "pos: " << &(*pos) << " end: " << &(*end()) << " diff: " << pos - end() << endl;
-
-    auto diff = end() - pos;
+inline void Vec<T, U>::insert(const iterator pos, TT&& value) {
+    auto diff = pos - begin();
     reserve(dim + 1);
-    pos = end() - diff;
+    pos = begin() + diff;
 
     ++dim;
 
-    cout << "pos: " << &(*pos) << " end: " << &(*end()) << " diff: " << pos - end() << endl;
-
-    if(pos < end() - 1) {
-        cout << "diff: " << end() - 1 - pos << endl;
+    if(pos < end()) {
         coords.move_construct(pos, end(), pos + 1);
     }
-    coords.construct_at(pos < end() - 1 ? pos : end() - 1, std::forward<TT>(value));
+    coords.construct_at(pos < end() ? pos : end(), std::forward<TT>(value));
 }
 //TODO: исправить ошибку и сделать std:forward для insert
 
@@ -466,17 +461,16 @@ inline void Vec<T, U>::insert(iterator pos, It first, It last) {
 //> Vec<T, U>::push_back
 
 template<typename T, typename U>
-inline void Vec<T, U>::push_back(const T& value) {
+template<typename TT>
+inline void Vec<T, U>::push_back(TT&& value) {
     cout << "push_back(const T&)" << endl;
-    insert(cend(), value);
+    insert(cend(), std::forward<TT>(value));
 }
 
-//TODO: выразить push_back через insert
-//TODO: .insert(const iterator pos, const T& value)
-//TODO: .insert(const iterator pos, T&& value)
-//TODO: .insert(const iterator pos, It first, It last)
-// insert должен вставлять и отодвигать
-// TODO: .assign(U n, const T& value)
+// TODO: доделать insert
+// TODO: iterator erase(const iterator pos) (возвращает указатель на место где удалили)
+// TODO: iterator erase(const It first, const It last); (возвращает указатель на last)
+
 
 //<
 

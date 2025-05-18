@@ -67,6 +67,9 @@ public:
 
         explicit iterator(T* pptr) : ptr{pptr} {}
 
+        iterator& operator=(const iterator& other) {ptr = other.ptr; return *this;}
+        const iterator& operator=(const iterator& other) const {ptr = other.ptr; return *this;}
+
         T& operator*() {return *ptr;}
         const T& operator*() const {return *ptr;}
 
@@ -96,11 +99,11 @@ public:
         iterator& operator-=(difference_type n) {ptr -= n; return *this;}
         const iterator& operator-=(difference_type n) const {ptr -= n; return *this;}
 
-        iterator operator+(difference_type n) {iterator it = *this; return it+=n;}
-        const iterator operator+(difference_type n) const {iterator it = *this; return it+=n;}
+        iterator operator+(difference_type n) {iterator it = *this; return it += n;}
+        const iterator operator+(difference_type n) const {iterator it = *this; return it += n;}
 
-        iterator operator-(difference_type n) {iterator it = *this; return it-=n;}
-        const iterator operator-(difference_type n) const {iterator it = *this; return it-=n;}
+        iterator operator-(difference_type n) {iterator it = *this; return it -= n;}
+        const iterator operator-(difference_type n) const {iterator it = *this; return it -= n;}
 
         T& operator[](difference_type n) {return *(*this + n);}
         const T& operator[](difference_type n) const {return *(*this + n);}
@@ -173,7 +176,7 @@ template<typename T, typename U>
 template<typename It, typename TT>
 void Storage<T, U>::construct_at(const It pos, TT&& value) {
     cout << " construct_at value: " << value << endl;
-    new((void*)&*pos) T{std::forward<TT>(value)};
+    new((void*)&*pos) T(std::forward<TT>(value));
 }
 
 template<typename T, typename U>
