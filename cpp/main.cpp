@@ -229,8 +229,25 @@ int main() {
     cout << (st2_it2 >= st2_it1) << endl;
 
     Vec<float, int> v20{};
+
     v20.push_back(10);
+    v20.push_back(20);
+    v20.push_back(30);
+
     v20.print("v20");
+
+    Vec<float, int> v21{};
+
+    v21.push_back(1);
+    v21.push_back(2);
+    v21.push_back(3);
+
+    v20.insert(v20.begin() + 1, v21.begin() + 2, v21.end());
+    v20.print("v20");
+
+    // v20.print("v20");
+
+    
 //    v20.push_back(20);
 //    v20.print("v20");
 //    v20.push_back(30);
@@ -245,13 +262,4 @@ int main() {
     cout << sizeof(typename Storage<float, int>::iterator) << endl;
     cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
 
-    Vec v21{3};
-//    v21.insert(v21.begin() + 2, 1);
-//    v21.print("V21");
-//
-//    v21.push_back(21);
-//    v21.print("v21");
-//
-//    v21.push_back(111);
-//    v21.print("v21");
 }
