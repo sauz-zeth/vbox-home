@@ -155,6 +155,11 @@ public:
     template<typename TT>
     void push_back(TT&& value);
 
+    iterator erase(const iterator pos);
+
+    template<typename It>
+    iterator erase(const It first, const It last);
+
     template<typename V>
     void add(const V x);
 
@@ -440,20 +445,22 @@ template<typename T, typename U>
 template<typename It>
 inline void Vec<T, U>::insert(iterator pos, It first, It last) {
 
-    cout << "insert(const iterator pos, It first, It last)" << endl;
-
     auto size = last - first;
 
-    auto diff = end() - pos;
+    auto diff = pos - begin();
     reserve(dim + size);
-    pos = end() - diff;
+    pos = begin() + diff;
 
-    coords.move_construct(pos, end(), pos + size);
+    if(pos < end()) {
+        coords.move_construct(pos, end(), pos + size);
+    }
 
     It it = first;
     for (auto i = 0; it != last; ++it, ++i) {
-        coords.construct_at(pos + i, *it);
+        coords.construct_at(pos < end() ? pos + i : end() + i, *it);
     }
+
+    dim += size;
 }
 
 //<
@@ -463,7 +470,6 @@ inline void Vec<T, U>::insert(iterator pos, It first, It last) {
 template<typename T, typename U>
 template<typename TT>
 inline void Vec<T, U>::push_back(TT&& value) {
-    cout << "push_back(const T&)" << endl;
     insert(cend(), std::forward<TT>(value));
 }
 
@@ -471,6 +477,38 @@ inline void Vec<T, U>::push_back(TT&& value) {
 // TODO: iterator erase(const iterator pos) (возвращает указатель на место где удалили)
 // TODO: iterator erase(const It first, const It last); (возвращает указатель на last)
 
+
+//<
+
+//> Vec<T, U>::erase
+
+template<typename T, typename U>
+inline typename Vec<T, U>::iterator Vec<T, U>::erase(const iterator pos) {
+
+    if (pos >= end()) return end();
+
+    std::destroy_at(&*pos);
+    coords.move_construct(pos + 1, end(), pos);
+    dim--;
+
+    return pos;
+}
+
+template<typename T, typename U>
+template<typename It>
+inline typename Vec<T, U>::iterator Vec<T, U>::erase(const It first, const It last) {
+
+    if (last >= end()) last = end();
+    if (first >= end()) return end();
+
+    auto size = last - first;
+
+    std::destroy(first, last);
+    coords.move_construct(last + 1, end(), first);
+    dim -= size;
+
+    return last;
+}
 
 //<
 

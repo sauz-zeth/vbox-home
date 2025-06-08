@@ -3,7 +3,8 @@
 #include "number.hpp"
 #include "vec.hpp"
 
-int main() {
+int main()
+{
     Vec<float, int> v1{3};
     v1.at(0) = 23.3;
     v1.at(1) = 2.2;
@@ -32,15 +33,15 @@ int main() {
     v2.print("v2");
 
     v2.print("v2");
-//    Vec v4 {scale(v2, float{23})};
-    Vec v4 {scale<float>(v2, 23)};
+    //    Vec v4 {scale(v2, float{23})};
+    Vec v4{scale<float>(v2, 23)};
     v4.print("v4");
 
     v2.at(0) = 1;
     v2.print("v2");
     v3.print("v3");
 
-    Vec v5 {2};
+    Vec v5{2};
     v5.one();
     v5.print("v5");
 
@@ -48,7 +49,7 @@ int main() {
     v6.print("v3 sub v2");
 
     cout << "v3 dot v2: " << dot(v3, v2) << endl;
-    
+
     v3.print("v3");
     v3 += v2;
     v3.print("v3 += v2");
@@ -56,11 +57,11 @@ int main() {
     cout << less(v5, v3) << endl;
 
     v2.print("v2");
-    
+
     Vec v7 = v3 + v2;
     v7.print("v3 + v2");
 
-    Vec v8 = operator+<float>(v3, v2);
+    Vec v8 = operator+ <float>(v3, v2);
     v8.print("v3 + v2");
 
     v8 += 5;
@@ -83,7 +84,7 @@ int main() {
     Vec v13 = -v12;
     v13.print("v13");
 
-    Vec<int, int> v14 {};
+    Vec<int, int> v14{};
     v14.at(0) = 4;
     v14.at(1) = 8;
 
@@ -99,7 +100,7 @@ int main() {
 
     v16 *= 0.5f;
     v16.print("v16");
-    
+
     v16[0] = 20;
     cout << "v16[0] = 20: " << v16[0] << endl;
     cout << "v16[1]: " << v16[1] << endl;
@@ -118,7 +119,6 @@ int main() {
     v16 = v14 = v15;
     v16.print("v16");
     v16.print("v14");
-
 
     v16.at(0) = 1;
     v16.at(1) = 3;
@@ -143,53 +143,58 @@ int main() {
     v17.shrink();
     v17.print("v17");
 
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         cout << "block start \n";
         Vec<float, int> v3{4};
         v3.at(0) = 1;
         cout << "block end \n";
     }
 
-    Vec<> *vv {new Vec<>[5]}; 
+    Vec<> *vv{new Vec<>[5]};
     cout << "vv allocated\n";
 
-    delete[] vv;    // RAII!
-
+    delete[] vv; // RAII!
 
     Vec<Number> v18{};
     v18[0] = 100.;
 
     cout << v18[0].value << ' ' << v18[1].value << endl;
-//    v18.print("v18");
-    
+    //    v18.print("v18");
+
     assert(v18[0].value == 100);
 
     const Storage<float, int> st{10};
-    for(int i = 0; i < 10; i++) {
-        const_cast<float&>(st[i]) = i;
+    for (int i = 0; i < 10; i++)
+    {
+        const_cast<float &>(st[i]) = i;
     }
 
-    for(Storage<float, int>::iterator it = st.cbegin(); it != st.cend(); ++it) {
-//        typename Storage<float, int>::iterator::value_type v = *it;
+    for (Storage<float, int>::iterator it = st.cbegin(); it != st.cend(); ++it)
+    {
+        //        typename Storage<float, int>::iterator::value_type v = *it;
         typename std::iterator_traits<Storage<float, int>::iterator>::value_type v = *it;
         cout << v << ' ';
     }
     cout << endl;
 
-    for(auto it = st.cbegin(); it != st.cend(); ++it) {
+    for (auto it = st.cbegin(); it != st.cend(); ++it)
+    {
         cout << *it << ' ';
-    } 
+    }
     cout << endl;
 
     cout << &*st.cbegin() << ' ' << &*++st.cbegin() << ' ' << &*st.cend() << endl;
 
-    const_cast<float&>(st[0]) = 12;
-    if(!st) cout << "st" << endl;
+    const_cast<float &>(st[0]) = 12;
+    if (!st)
+        cout << "st" << endl;
 
     Storage<float, int> st1{10};
     std::uninitialized_copy(st.cbegin(), st.cend(), st1.begin());
 
-    for(auto it = st1.begin(); it != st1.end(); ++it) {
+    for (auto it = st1.begin(); it != st1.end(); ++it)
+    {
         cout << *it << ' ';
     }
     cout << endl;
@@ -202,7 +207,8 @@ int main() {
 
     v17.assign(a, a + 4);
 
-    for (auto& it : st1) {
+    for (auto &it : st1)
+    {
         cout << it << ' ';
     }
     cout << endl;
@@ -215,8 +221,8 @@ int main() {
     cout << dist << endl;
 
     Storage<Number> st2{10};
-//    new(&*st2.begin()) Number{123};
-    new(&st2[1]) Number{1111};
+    //    new(&*st2.begin()) Number{123};
+    new (&st2[1]) Number{1111};
     std::uninitialized_fill(st2.begin(), st2.begin() + 1, Number{123});
     auto st2_it1 = st2.begin();
     cout << st2[0].value << endl;
@@ -245,21 +251,25 @@ int main() {
     v20.insert(v20.begin() + 1, v21.begin() + 2, v21.end());
     v20.print("v20");
 
+    v20.erase(v20.begin() + 2);
+    v20.print("v20 erase");
+
+    v20.erase(v20.begin() + 1, v20.begin() + 3);
+    v20.print("v20 erase");
+
     // v20.print("v20");
 
-    
-//    v20.push_back(20);
-//    v20.print("v20");
-//    v20.push_back(30);
-//    v20.print("v20");
-//    v20.push_back(40);
-//    v20.print("v20");
+    //    v20.push_back(20);
+    //    v20.print("v20");
+    //    v20.push_back(30);
+    //    v20.print("v20");
+    //    v20.push_back(40);
+    //    v20.print("v20");
 
     int i = 10;
     const int *p = &i;
     p++;
-    
+
     cout << sizeof(typename Storage<float, int>::iterator) << endl;
     cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
-
 }
