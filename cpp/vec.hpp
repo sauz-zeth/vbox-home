@@ -83,6 +83,7 @@ public:
 
         std::uninitialized_fill(begin(), end(), T{});
     }
+    //TODO: конструктор с initializer_list (исправить main)
 
 //    Vec(const Vec& v) : Vec{v.dim} {  // Делегирование конструктора
 
@@ -439,12 +440,10 @@ inline void Vec<T, U>::insert(const iterator pos, TT&& value) {
     }
     coords.construct_at(pos < end() ? pos : end(), std::forward<TT>(value));
 }
-//TODO: исправить ошибку и сделать std:forward для insert
 
 template<typename T, typename U>
 template<typename It>
 inline void Vec<T, U>::insert(iterator pos, It first, It last) {
-
     auto size = last - first;
 
     auto diff = pos - begin();
@@ -455,9 +454,8 @@ inline void Vec<T, U>::insert(iterator pos, It first, It last) {
         coords.move_construct(pos, end(), pos + size);
     }
 
-    It it = first;
-    for (auto i = 0; it != last; ++it, ++i) {
-        coords.construct_at(pos < end() ? pos + i : end() + i, *it);
+    for (auto d_first = pos < end() ? pos : end(); first != last; ++first, ++d_first) {
+        coords.construct_at(d_first, *first);
     }
 
     dim += size;
@@ -484,8 +482,7 @@ inline void Vec<T, U>::push_back(TT&& value) {
 
 template<typename T, typename U>
 inline typename Vec<T, U>::iterator Vec<T, U>::erase(const iterator pos) {
-
-    if (pos >= end()) return end();
+    if(pos >= end()) return end();
 
     std::destroy_at(&*pos);
     coords.move_construct(pos + 1, end(), pos);
@@ -497,14 +494,13 @@ inline typename Vec<T, U>::iterator Vec<T, U>::erase(const iterator pos) {
 template<typename T, typename U>
 template<typename It>
 inline typename Vec<T, U>::iterator Vec<T, U>::erase(const It first, const It last) {
-
-    if (last >= end()) last = end();
-    if (first >= end()) return end();
+    if(first >= end()) return end();
+    if(last >= end()) last = end();
 
     auto size = last - first;
 
     std::destroy(first, last);
-    coords.move_construct(last + 1, end(), first);
+    coords.move_construct(last, end(), first);
     dim -= size;
 
     return last;

@@ -249,7 +249,7 @@ int main()
     v21.push_back(3);
 
     v20.insert(v20.begin() + 1, v21.begin() + 2, v21.end());
-    v20.print("v20");
+    v20.print("v20 insert");
 
     v20.erase(v20.begin() + 2);
     v20.print("v20 erase");
