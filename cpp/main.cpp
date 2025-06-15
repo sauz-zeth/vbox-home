@@ -3,9 +3,8 @@
 #include "number.hpp"
 #include "vec.hpp"
 
-int main()
-{
-    Vec<float, int> v1{3};
+int main() {
+    Vec<float, int> v1(3);
     v1.at(0) = 23.3;
     v1.at(1) = 2.2;
     v1.print("v1");
@@ -33,15 +32,14 @@ int main()
     v2.print("v2");
 
     v2.print("v2");
-    //    Vec v4 {scale(v2, float{23})};
-    Vec v4{scale<float>(v2, 23)};
+    Vec v4(scale<float>(v2, 23));
     v4.print("v4");
 
     v2.at(0) = 1;
     v2.print("v2");
     v3.print("v3");
 
-    Vec v5{2};
+    Vec v5(2);
     v5.one();
     v5.print("v5");
 
@@ -84,7 +82,7 @@ int main()
     Vec v13 = -v12;
     v13.print("v13");
 
-    Vec<int, int> v14{};
+    Vec<int, int> v14(2);
     v14.at(0) = 4;
     v14.at(1) = 8;
 
@@ -113,7 +111,7 @@ int main()
     v15 = std::move(v14);
     v15.print("v15 = move(v14)");
 
-    v15 = Vec{3};
+    v15 = Vec<float, int>(3);
     v15.print("v15");
 
     v16 = v14 = v15;
@@ -137,7 +135,7 @@ int main()
     v16.shrink();
     v16.print("v16 shrinked");
 
-    Vec v17{4};
+    Vec v17(4);
     v17.resize(2);
     v17.print("v17");
     v17.shrink();
@@ -146,40 +144,34 @@ int main()
     for (int i = 0; i < 3; i++)
     {
         cout << "block start \n";
-        Vec<float, int> v3{4};
+        Vec<float, int> v3(4);
         v3.at(0) = 1;
         cout << "block end \n";
     }
 
-    Vec<> *vv{new Vec<>[5]};
+    Vec<> *vv = new Vec<>[5];
     cout << "vv allocated\n";
 
-    delete[] vv; // RAII!
+    delete[] vv;
 
-    Vec<Number> v18{};
+    Vec<Number> v18(2);
     v18[0] = 100.;
 
     cout << v18[0].value << ' ' << v18[1].value << endl;
-    //    v18.print("v18");
-
     assert(v18[0].value == 100);
 
-    const Storage<float, int> st{10};
-    for (int i = 0; i < 10; i++)
-    {
+    const Storage<float, int> st(10);
+    for (int i = 0; i < 10; i++) {
         const_cast<float &>(st[i]) = i;
     }
 
-    for (Storage<float, int>::iterator it = st.cbegin(); it != st.cend(); ++it)
-    {
-        //        typename Storage<float, int>::iterator::value_type v = *it;
+    for (Storage<float, int>::iterator it = st.cbegin(); it != st.cend(); ++it) {
         typename std::iterator_traits<Storage<float, int>::iterator>::value_type v = *it;
         cout << v << ' ';
     }
     cout << endl;
 
-    for (auto it = st.cbegin(); it != st.cend(); ++it)
-    {
+    for (auto it = st.cbegin(); it != st.cend(); ++it) {
         cout << *it << ' ';
     }
     cout << endl;
@@ -190,11 +182,10 @@ int main()
     if (!st)
         cout << "st" << endl;
 
-    Storage<float, int> st1{10};
+    Storage<float, int> st1(10);
     std::uninitialized_copy(st.cbegin(), st.cend(), st1.begin());
 
-    for (auto it = st1.begin(); it != st1.end(); ++it)
-    {
+    for (auto it = st1.begin(); it != st1.end(); ++it) {
         cout << *it << ' ';
     }
     cout << endl;
@@ -204,24 +195,19 @@ int main()
     v17.print("v17");
 
     float a[] = {1, 2, 44, 56};
-
     v17.assign(a, a + 4);
 
-    for (auto &it : st1)
-    {
+    for (auto &it : st1) {
         cout << it << ' ';
     }
     cout << endl;
 
     auto it1 = st1.begin();
     auto it2 = st1.end();
-
     std::ptrdiff_t dist = it2 - it1;
-
     cout << dist << endl;
 
-    Storage<Number> st2{10};
-    //    new(&*st2.begin()) Number{123};
+    Storage<Number> st2(10);
     new (&st2[1]) Number{1111};
     std::uninitialized_fill(st2.begin(), st2.begin() + 1, Number{123});
     auto st2_it1 = st2.begin();
@@ -234,16 +220,13 @@ int main()
     cout << st2_it2->value << endl;
     cout << (st2_it2 >= st2_it1) << endl;
 
-    Vec<float, int> v20{};
-
+    Vec<float, int> v20;
     v20.push_back(10);
     v20.push_back(20);
     v20.push_back(30);
-
     v20.print("v20");
 
-    Vec<float, int> v21{};
-
+    Vec<float, int> v21;
     v21.push_back(1);
     v21.push_back(2);
     v21.push_back(3);
@@ -257,19 +240,16 @@ int main()
     v20.erase(v20.begin() + 1, v20.begin() + 3);
     v20.print("v20 erase");
 
-    // v20.print("v20");
-
-    //    v20.push_back(20);
-    //    v20.print("v20");
-    //    v20.push_back(30);
-    //    v20.print("v20");
-    //    v20.push_back(40);
-    //    v20.print("v20");
-
     int i = 10;
     const int *p = &i;
     p++;
 
     cout << sizeof(typename Storage<float, int>::iterator) << endl;
     cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
+
+    Vec v22 = {1, 2, 5, 10, 20};
+    Vec v23{5, 2, 123, 2};
+    v22.print("v22");
+    v23.print("v23");
+
 }

@@ -106,6 +106,12 @@ public:
         v.dim = 0;
     }
 
+    Vec(std::initializer_list<T> list) : dim{static_cast<U>(list.size())}, coords{dim} {
+    cout << "Vec initializer_list constructed at " << this << endl;
+
+    std::uninitialized_copy(list.begin(), list.end(), begin());
+    }
+
     Vec& operator=(const Vec& v) {
         cout << "Vec copy assignment at " << this << " from " << &v << endl;
 
@@ -470,10 +476,6 @@ template<typename TT>
 inline void Vec<T, U>::push_back(TT&& value) {
     insert(cend(), std::forward<TT>(value));
 }
-
-// TODO: доделать insert
-// TODO: iterator erase(const iterator pos) (возвращает указатель на место где удалили)
-// TODO: iterator erase(const It first, const It last); (возвращает указатель на last)
 
 
 //<
