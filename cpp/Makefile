@@ -1,5 +1,5 @@
 TARGET = main
-SRC = main.cpp vec.hpp storage.hpp number.hpp
+SRC = main.cpp vec.hpp storage.hpp number.hpp point.hpp
 
 CC = g++
 CXXFLAGS = -std=c++17 -g3

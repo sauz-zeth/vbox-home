@@ -1,4 +1,5 @@
-alias tar-home='cd; tar -czvf home.tar.gz py/*.{py,txt} c/*.{c,h,txt} cpp/*.{c,cpp,h,hpp,txt} cpp/Makefile bash/*.sh .bash_aliases2; cp -v home.tar.gz /media/share; cd -'
+alias tar-home='cd; tar -czvf home.tar.gz py/*.{py,txt} c/*.{c,h,txt} cpp/*.{c,cpp,h,hpp,txt} cpp/Makefile bash/*.sh .bash_aliases2 alg/; cp -v home.tar.gz /media/share; cd -'
 alias tar-profile='tar -xzvf /media/share/profile.tar.gz -C ~'
+alias cda='cd ~/alg; l'
 
 alias py13='python3.13 -q'

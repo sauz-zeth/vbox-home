@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include "number.hpp"
+#include "point.hpp"
 #include "vec.hpp"
 
 int main() {
@@ -248,8 +249,15 @@ int main() {
     cout << sizeof(std::iterator_traits<Storage<float, int>>) << endl;
 
     Vec v22 = {1, 2, 5, 10, 20};
-    Vec v23{5, 2, 123, 2};
+    Vec v23 {5, 2, 123, 2};
     v22.print("v22");
     v23.print("v23");
+
+    Vec<Number> v24 = {1, 2, 3};
+//    v24.print("v24");
+    
+    Vec<Point> v25 = {std::initializer_list<int>{32, 2}, std::initializer_list<int>{45, 123}};
+    
+    cout << "_____________________" << endl;
 
 }

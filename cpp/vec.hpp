@@ -106,10 +106,11 @@ public:
         v.dim = 0;
     }
 
-    Vec(std::initializer_list<T> list) : dim{static_cast<U>(list.size())}, coords{dim} {
-    cout << "Vec initializer_list constructed at " << this << endl;
+    template<typename TT>
+    Vec(std::initializer_list<TT> lst) : dim{lst.size()}, coords{dim} {
+        cout << "Vec initializer_list constructed at " << this << endl;
 
-    std::uninitialized_copy(list.begin(), list.end(), begin());
+        std::uninitialized_copy(lst.begin(), lst.end(), begin());
     }
 
     Vec& operator=(const Vec& v) {
