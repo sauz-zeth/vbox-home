@@ -3,48 +3,55 @@
 #define N_MAX 100
 #define M_MAX 10000
 
-void print_graph(int graph[][N_MAX], int N) {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            printf("%d ", graph[i][j]);
-        }
-        printf("\n");
+typedef char vertex_t;
+typedef vertex_t (*adj_list_ptr)[2]; 
+
+vertex_t adj_list[M_MAX][2];
+char visited[N_MAX] = {};
+int N, M;
+
+void print_list(adj_list_ptr a, int m) {
+    for (int i = 0; i < m; i++) {
+        printf("%d %d\n", a[i][0], a[i][1]);
     }
 }
 
-void DFS(int graph[][N_MAX], int used[N_MAX], int N, int vertex) {
-    used[vertex] = 1;
+char DFS(vertex_t parent) {
+    vertex_t children[N_MAX] = {};
+    int children_count = 0;
+// TODO: Заполнить массив Children, выполнить проверку на треугольник, запустить DFS рекурсивно.
+    visited[parent] = 1;
 
-    for (int i = 0; i < N; i++) {
-        if (graph[vertex][i] && !used[i]) {
-            DFS(graph, used, N, i);
+    vertex_t child;
+    for(int i = 0; i < M; i++) {
+        if(adj_list[i][0] == parent) {
+            child = adj_list[i][1];
+        }
+        else if(adj_list[i][1] == parent) {
+            child = adj_list[i][0];
+        } 
+        else continue;
+
+        if(!visited[child]) {
+            if(!DFS(child)) return 0;
         }
     }
+
+    return 1;
 }
 
 int main() {
     FILE *file = fopen("data1.txt", "r");
-    int N, M;
-    fscanf(file, "%d %d", &N, &M);
-
-    int graph[N_MAX][N_MAX];
-    int used[N_MAX];
-
-    for (int i = 0; i < N; i++) {
-        used[i] = 0;
-        for (int j = 0; j < N; j++) {
-            graph[i][j] = 0;
-        }
-    }
+    fscanf(file, "%d%d", &N, &M);
 
     int a, b;
     for (int i = 0; i < M; i++) {
-        fscanf(file, "%d %d", &a, &b);
-        graph[a - 1][b - 1] = 1;
-        graph[b - 1][a - 1] = 1;
+        fscanf(file, "%d%d", &a, &b);
+        adj_list[i][0] = a;
+        adj_list[i][1] = b;
     }
 
-    print_graph(graph, N);
+    print_list(adj_list, M);
 
     fclose(file);
     return 0;

@@ -72,6 +72,52 @@ void f(double p) {
 
 template<int N>     //template alias
 using pfi_t = Point<float, int, N>;
+
+template<typename... Args>
+void g(Args... args) {
+    cout << sizeof...(Args) << endl;
+    cout << sizeof...(args) << endl;
+
+    (cout << ... << args) << endl;
+//  ((((cout << arg1) << arg2) << arg3) ... << argN)
+}
+
+template<typename... Args>
+auto gs(Args... args) {
+    return (... + args);    // fold expression (C++17)
+//  return (((arg1 + arg2) + arg3) ... + argN);
+}
+
+template<typename T>
+void print(T arg);
+
+template<typename T, typename... Args>
+void print(T firstArg, Args... args);
+
+template<typename... Args>
+void g1(Args... args) {
+    print(args * args...);
+}
+
+template<typename T>
+void print(T arg) {
+    cout << arg << endl;
+}
+
+template<typename T, typename... Args>
+void print(T firstArg, Args... args) {
+    print(firstArg);
+    print(args...);
+}
+
+//void print() {
+//}
+//
+//template<typename T, typename... Args>
+//void print(T firstArg, Args... args) {
+//    cout << firstArg << endl;
+//    print(args...);
+//}
     
 int main() {
     Point<double> pd {1, 2, 3};   
@@ -111,4 +157,11 @@ int main() {
     Point<char> pc {(char)12};
     pp.print();
     pc.print();
+
+    g(12, 11., "abc"/*, Point<>{1, 2, 3}*/);
+    cout << gs(12, 2., 34) << endl;
+    print(12, 11., "123", "1");
+
+    cout << "g1: " << endl;
+    g1(1, 10, 100.);
 }
