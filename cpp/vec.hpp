@@ -445,8 +445,10 @@ inline void Vec<T, U>::insert(const iterator pos, TT&& value) {
     if(pos < end()) {
         coords.move_construct(pos, end(), pos + 1);
     }
-    coords.construct_at(pos < end() ? pos : end(), std::forward<TT>(value));
+    coords.reconstruct_at(pos < end() ? pos : end(), std::forward<TT>(value));
 }
+
+// TODO: const iterator Vec<T, U>::emplace(const iterator pos, Args... args)
 
 template<typename T, typename U>
 template<typename It>
@@ -462,11 +464,12 @@ inline void Vec<T, U>::insert(iterator pos, It first, It last) {
     }
 
     for (auto d_first = pos < end() ? pos : end(); first != last; ++first, ++d_first) {
-        coords.construct_at(d_first, *first);
+        coords.reconstruct_at(d_first, *first);
     }
 
     dim += size;
 }
+
 
 //<
 

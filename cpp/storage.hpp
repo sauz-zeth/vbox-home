@@ -143,7 +143,7 @@ public:
     void realloc(U c, It first, It last);
 
     template<typename It, typename TT>
-    void construct_at(const It pos, TT&& value);
+    void reconstruct_at(const It pos, TT&& value);
 
     template<typename It>
     void move_construct_forward(It first, It last, It d_first);
@@ -174,17 +174,19 @@ void Storage<T, U>::realloc(U c, It first, It last) {
 
 template<typename T, typename U>
 template<typename It, typename TT>
-void Storage<T, U>::construct_at(const It pos, TT&& value) {
-    cout << " construct_at value: " << value << endl;
+void Storage<T, U>::reconstruct_at(const It pos, TT&& value) {
+    cout << " reconstruct_at value: " << value << endl;
     new((void*)&*pos) T(std::forward<TT>(value));
 }
+
+// TODO: const It Storage<T, U>::construct_at(const It pos, Args... args) 
 
 template<typename T, typename U>
 template<typename It>
 void Storage<T, U>::move_construct_forward(It first, It last, It d_first) {
     cout << "move_construct_forward" << endl;
     for(; first != last; ++first, ++d_first) {
-        construct_at(d_first, std::move(*first));
+        reconstruct_at(d_first, std::move(*first));
         std::destroy_at(&*first);
     }
 }
@@ -194,7 +196,7 @@ template<typename It>
 void Storage<T, U>::move_construct_backward(It first, It last, It d_last) {
     cout << "move_construct_backward" << endl;
     for(; first != last;) {
-        construct_at(--d_last, std::move(*--last));
+        reconstruct_at(--d_last, std::move(*--last));
         std::destroy_at(&*last);
     }
 }

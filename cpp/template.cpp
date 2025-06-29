@@ -70,6 +70,10 @@ void f(double p) {
     cout << p << endl;
 }
 
+void h() {
+    cout << "h\n";
+}
+
 template<int N>     //template alias
 using pfi_t = Point<float, int, N>;
 
@@ -96,7 +100,18 @@ void print(T firstArg, Args... args);
 
 template<typename... Args>
 void g1(Args... args) {
-    print(args * args...);
+    print(args * args...);  // Pack expansion
+}
+
+template<typename... Args>
+void g2(Args*... args) {
+    print(*args...);
+}
+
+template<typename... Args>
+void g3(Args&&... args) {
+    g1(forward<Args>(args)...);
+//    g1(static_cast<Args&&>(args)...);
 }
 
 template<typename T>
@@ -164,4 +179,11 @@ int main() {
 
     cout << "g1: " << endl;
     g1(1, 10, 100.);
+
+    int a {78};
+    long b {56};
+    double c {123};
+    g2(&a, &b, &c);
+    cout << (void *)h << endl;
+    g3(1, 123.34, 432);
 }

@@ -3,9 +3,8 @@
 #define N_MAX 100
 #define M_MAX 10000
 
-// O(M * N**2)
-//
-// TODO: найти ошибку
+// O(M**3)
+// TODO: алгоритм поиска треугольников
 
 typedef int vertex_t;
 typedef vertex_t (*adj_list_ptr)[2]; 
